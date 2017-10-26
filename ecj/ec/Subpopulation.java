@@ -152,8 +152,6 @@ public class Subpopulation implements Cloneable, Setup
     
     public void truncate(int toThis)
         {
-        //Individual[] temp = (Individual[]) (individuals.subList(0, toThis).toArray(new Individual[0]));
-        //individuals = new ArrayList<Individual>(Arrays.asList(temp));
         int length = individuals.size();
         individuals.subList(toThis, length).clear();
         }
@@ -171,7 +169,6 @@ public class Subpopulation implements Cloneable, Setup
         // do we load from a file?
         file = base.push(P_FILE);
         loadInds = state.parameters.exists(file,null);
-        
         
         // what species do we use?
 

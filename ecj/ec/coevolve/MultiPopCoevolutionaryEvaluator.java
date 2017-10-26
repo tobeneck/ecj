@@ -53,9 +53,9 @@ import ec.util.*;
  <td valign=top>(the number of random individuals from any given subpopulation fropm the current population to be selected as collaborators)
  </td></tr>
 
- <tr><td valign=top><i>base.</i><tt>subpop.num-elites</tt><br>
+ <tr><td valign=top><i>base.</i><tt>subpop.num-gurus</tt><br>
  <font size=-1> int &gt;= 0</font></td>
- <td valign=top>(the number of elite individuals from any given subpopulation from the previous population to be selected as collaborators. For generation 0, random individuals from the current population will be used.  )
+ <td valign=top>(the number of guru individuals from any given subpopulation from the previous population to be selected as collaborators. For generation 0, random individuals from the current population will be used.  )
  </td></tr>
 
  <tr><td valign=top><i>base.</i><tt>subpop.num-prev</tt><br>
@@ -102,10 +102,10 @@ public class MultiPopCoevolutionaryEvaluator extends Evaluator
     public static final String P_NUM_SHUFFLED = "num-shuffled";
     protected int numShuffled;
 
-    // the number of elite partners selected from the previous generation
-    public static final String P_NUM_ELITE = "num-elites";
-    protected int numElite;
-    Individual[/*subpopulation*/][/*the elites*/] eliteIndividuals;
+    // the number of guru partners selected from the previous generation
+    public static final String P_NUM_GURU = "num-gurus";
+    protected int numGuru;
+    Individual[/*subpopulation*/][/*the gurus*/] guruIndividuals;
 
     // the number of random partners selected from the current and previous generations
     public final static String P_NUM_IND = "num-prev";
@@ -135,9 +135,9 @@ public class MultiPopCoevolutionaryEvaluator extends Evaluator
         if( numSubpopulations <= 0 )
             state.output.fatal( "Parameter not found, or it has a non-positive value.", tempSubpop );
 
-        numElite = state.parameters.getInt( base.push(P_NUM_ELITE), null, 0 );
-        if( numElite < 0 )
-            state.output.fatal( "Parameter not found, or it has an incorrect value.", base.push(P_NUM_ELITE) );
+        numGuru = state.parameters.getInt( base.push(P_NUM_GURU), null, 0 );
+        if( numGuru < 0 )
+            state.output.fatal( "Parameter not found, or it has an incorrect value.", base.push(P_NUM_GURU) );
 
         numShuffled = state.parameters.getInt( base.push(P_NUM_SHUFFLED), null, 0 );
         if( numShuffled < 0 )
@@ -185,7 +185,7 @@ public class MultiPopCoevolutionaryEvaluator extends Evaluator
                 }
             }
                                                                                           
-        if( numElite + numCurrent + numPrev + numShuffled <= 0 )
+        if( numGuru + numCurrent + numPrev + numShuffled <= 0 )
             state.output.error( "The total number of partners to be selected should be > 0." );
         state.output.exitIfErrors();
         }
@@ -230,19 +230,19 @@ public class MultiPopCoevolutionaryEvaluator extends Evaluator
         if (state.generation == 0)
             {
             //
-            // create arrays for the elite individuals in the population at the previous generation.
-            // deep clone the elite individuals as random individuals (in the initial generation, nobody has been evaluated yet).
+            // create arrays for the guru individuals in the population at the previous generation.
+            // deep clone the guru individuals as random individuals (in the initial generation, nobody has been evaluated yet).
             //
             
-            // deal with the elites
-            eliteIndividuals = new Individual[state.population.subpops.size()][numElite];
+            // deal with the gurus
+            guruIndividuals = new Individual[state.population.subpops.size()][numGuru];
             // copy the first individuals in each subpopulation (they are already randomly generated)
-            for( int i = 0 ; i < eliteIndividuals.length ; i++ )
+            for( int i = 0 ; i < guruIndividuals.length ; i++ )
                 {
-                if( numElite > state.population.subpops.get(i).individuals.size() )
-                    state.output.fatal( "Number of elite partners is greater than the size of the subpopulation." );
-                for( int j = 0; j < numElite ; j++ )
-                    eliteIndividuals[i][j] = (Individual)(state.population.subpops.get(i).individuals.get(j).clone());  // just take the first N individuals of each subpopulation
+                if( numGuru > state.population.subpops.get(i).individuals.size() )
+                    state.output.fatal( "Number of guru partners is greater than the size of the subpopulation." );
+                for( int j = 0; j < numGuru ; j++ )
+                    guruIndividuals[i][j] = (Individual)(state.population.subpops.get(i).individuals.get(j).clone());  // just take the first N individuals of each subpopulation
                 }
                         
             // test for shuffled
@@ -341,7 +341,7 @@ public class MultiPopCoevolutionaryEvaluator extends Evaluator
         // for each subpopulation
         for(int j = 0; j < state.population.subpops.size(); j++)
             {
-            // now do elites and randoms
+            // now do gurus and randoms
                 
             if (!shouldEvaluateSubpop(state, j, 0)) continue;  // don't evaluate this subpopulation
 
@@ -350,13 +350,13 @@ public class MultiPopCoevolutionaryEvaluator extends Evaluator
                 {
                 Individual individual = state.population.subpops.get(j).individuals.get(i);
                                 
-                // Test against all the elites
-                for(int k = 0; k < eliteIndividuals[j].length; k++)
+                // Test against all the gurus
+                for(int k = 0; k < guruIndividuals[j].length; k++)
                     {
                     for(int ind = 0; ind < inds.length; ind++)
                         {
                         if (ind == j) { inds[ind] = individual; updates[ind] = true; }
-                        else  { inds[ind] = eliteIndividuals[ind][k]; updates[ind] = false; }
+                        else  { inds[ind] = guruIndividuals[ind][k]; updates[ind] = false; }
                         }
                     prob.evaluate(state,inds,updates, false, subpops, 0);
                     evaluations++;
@@ -438,15 +438,13 @@ public class MultiPopCoevolutionaryEvaluator extends Evaluator
 
 
 
-    protected void afterCoevolutionaryEvaluation( final EvolutionState state,
-        final Population population,
-        final GroupedProblemForm prob )
+    protected void afterCoevolutionaryEvaluation( final EvolutionState state, final Population population, final GroupedProblemForm prob )
         {
-        if( numElite > 0 )
+        if( numGuru > 0 )
             {
             for(int i = 0; i < state.population.subpops.size(); i++)
-                if (shouldEvaluateSubpop(state, i, 0))          // only load elites for subpopulations which are actually changing
-                    loadElites( state, i );
+                if (shouldEvaluateSubpop(state, i, 0))          // only load gurus for subpopulations which are actually changing
+                    loadGurus( state, i );
             }
                                 
         // copy over the previous population
@@ -455,44 +453,44 @@ public class MultiPopCoevolutionaryEvaluator extends Evaluator
             previousPopulation = (Population)(state.population.emptyClone());
             for(int i = 0; i < previousPopulation.subpops.size(); i++ )
                 for(int j = 0; j < previousPopulation.subpops.get(i).individuals.size() ; j++ )
-                    previousPopulation.subpops.get(i).individuals.set(j, (Individual)(state.population.subpops.get(i).individuals.get(j).clone()));
+                    previousPopulation.subpops.get(i).individuals.add(j, (Individual)(state.population.subpops.get(i).individuals.get(j).clone()));
             }
         }
 
 
-    void loadElites( final EvolutionState state, int whichSubpop )
+    void loadGurus( final EvolutionState state, int whichSubpop )
         {
         Subpopulation subpop = state.population.subpops.get(whichSubpop);
                 
-        if (numElite==1)
+        if (numGuru==1)
             {
             int best = 0;
             ArrayList<Individual> oldinds = subpop.individuals;
             for(int x=1;x<oldinds.size();x++)
                 if (oldinds.get(x).fitness.betterThan(oldinds.get(best).fitness))
                     best = x;
-            eliteIndividuals[whichSubpop][0] = (Individual)(state.population.subpops.get(whichSubpop).individuals.get(best).clone());
+            guruIndividuals[whichSubpop][0] = (Individual)(state.population.subpops.get(whichSubpop).individuals.get(best).clone());
             }
-        else if (numElite > 0)  // we'll need to sort
+        else if (numGuru > 0)  // we'll need to sort
             {
             int[] orderedPop = new int[subpop.individuals.size()];
             for(int x=0;x<subpop.individuals.size();x++) orderedPop[x] = x;
 
             // sort the best so far where "<" means "more fit than"
-            QuickSort.qsort(orderedPop, new EliteComparator(subpop.individuals));
+            QuickSort.qsort(orderedPop, new GuruComparator(subpop.individuals));
 
             // load the top N individuals
-            for( int j = 0 ; j < numElite ; j++ )
-                eliteIndividuals[whichSubpop][j] = (Individual)(state.population.subpops.get(whichSubpop).individuals.get(orderedPop[j]).clone());
+            for( int j = 0 ; j < numGuru ; j++ )
+                guruIndividuals[whichSubpop][j] = (Individual)(state.population.subpops.get(whichSubpop).individuals.get(orderedPop[j]).clone());
             }
         }
 
     }
 
-class EliteComparator implements SortComparatorL
+class GuruComparator implements SortComparatorL
     {
     ArrayList<Individual> inds;
-    public EliteComparator(ArrayList<Individual> inds) {super(); this.inds = inds;}
+    public GuruComparator(ArrayList<Individual> inds) {super(); this.inds = inds;}
     public boolean lt(long a, long b)
         { return inds.get((int)a).fitness.betterThan(inds.get((int)b).fitness); }
     public boolean gt(long a, long b)
