@@ -29,11 +29,19 @@ import java.util.*;
  <tr><td valign=top><tt><i>base</i>.elite.<i>i</i></tt><br>
  <font size=-1>int >= 0 (default=0)</font></td>
  <td valign=top>(will subpopulation <i>i</i> include ONE elite individual?)</td></tr>
- <tr><td valign=top><tt><i>base</i>.expanded-subpop-size.<i>i</i></tt><br>
- <font size=-1>int >= 1 (default=not resized)</font></td>
- <td valign=top>What is the expanded size of the subpopulation after generation 0?</td></tr>
+ <tr><td valign=top><tt><i>base</i>.reduce-by.<i>i</i></tt><br>
+ <font size=-1>int >= 0 (default=0)</font></td>
+ <td valign=top>(how many to reduce subpopulation <i>i</i> by each generation)</td></tr>
+ <tr><td valign=top><tt><i>base</i>.minimum-size.<i>i</i></tt><br>
+ <font size=-1>int >= 2 (default=2)</font></td>
+ <td valign=top>(the minimum size for subpopulation <i>i</i> regardless of reduction)</td></tr>
+ <tr><td valign=top><tt><i>base</i>.reevaluate-elites.<i>i</i></tt><br>
+ <font size=-1>boolean (default = false)</font></td>
+ <td valign=top>(should we reevaluate the elites of subpopulation <i>i</i> each generation?)</td></tr>
+ <tr><td valign=top><tt><i>base</i>.sequential</tt><br>
+ <font size=-1>boolean (default = false)</font></td>
+ <td valign=top>(should we breed just one subpopulation each generation (as opposed to all of them)?)</td></tr>
  </table>
-
 
  <p><b>Default Base</b><br>
  ec.subpop

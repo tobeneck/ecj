@@ -3083,7 +3083,7 @@ The most common Breeder is \class{ec.simple.SimpleBreeder}, which implements a b
 \begin{enumerate}
 \item Determine the \(N\) fittest Individuals in the Subpopulation.
 \item Create a new Subpopulation.
-\item Load these \(N\) individuals (the ``elites'') into first slots of the new Subpopulation's \variable{individuals} array.
+\item Load these \(N\) individuals (the ``elites'') into last (highest) slots of the new Subpopulation's \variable{individuals} array.
 \item Break the remaining unfilled region of this \variable{individuals} array into \(M\) chunks, one chunk per thread.
 \item For each of the \(M\) threads (in parallel),
 \begin{enumerate}
@@ -11851,10 +11851,10 @@ eval.select-prev = ec.select.TournamentSelection\\
 select.tournament.size = 2
 }
 
-\item The very fittest Individuals from the previous generation (or randomly chosen if we're at the generation 0).  The number of fittest Individuals stored is the same as the number of trials (they're called ``gurus''):\footnote{They used to be called ``elites'', but that was easily confused with elitism.}
+\item The very fittest Individuals from the previous generation (or randomly chosen if we're at the generation 0).  The number of fittest Individuals stored is the same as the number of trials:
 
 \params{%
-eval.subpop.0.num-gurus = 5
+eval.subpop.0.num-elites = 5
 }
 
 
@@ -12188,7 +12188,7 @@ The remaining parameters are basically just like those in MultiPopCoevolutionary
 \params{%
 eval.num-current = 4\\
 eval.num-prev = 6\\
-eval.subpop.0.num-gurus = 5
+eval.subpop.0.num-elites = 5
 }
 
 {\bf Warning:}  Just like was the case for Spatial Breeding, Spatial Multi-Population Coevolution requires that Subpopulations not change in size from generation to generation.

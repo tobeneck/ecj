@@ -84,15 +84,17 @@ public class SPEA2Breeder extends SimpleBreeder
         ArrayList<Individual> archive = new ArrayList<Individual>();
         ArrayList<Individual> nonFront = new ArrayList<Individual>();
         MultiObjectiveFitness.partitionIntoParetoFront(oldInds, archive, nonFront);
+        int currentArchiveSize = archive.size();
                 
         // step 2: if the archive isn't full, load the remainder with the fittest individuals (using customFitnessMetric) that aren't in the archive yet
-        if (archive.size() < archiveSize)
+        if (currentArchiveSize < archiveSize)
             {
             Collections.sort(nonFront);  // the fitter individuals will be earlier
-            int len = (archiveSize - archive.size());
+            int len = (archiveSize - currentArchiveSize);
             for(int i = 0; i < len; i++)
                 {
                 archive.add(nonFront.get(i));
+                currentArchiveSize++;
                 }
             }
                         
@@ -103,13 +105,13 @@ public class SPEA2Breeder extends SimpleBreeder
         //SPEA2Evaluator evaluator = ((SPEA2Evaluator)(state.evaluator));
         // Individual[] inds = (Individual[])(archive.toArray(dummy));
                 
-        while(archive.size() > archiveSize)
+        while(currentArchiveSize > archiveSize)
             {
             Individual closest = (Individual)(archive.get(0));
             int closestIndex = 0;
             double[] closestD = calculateDistancesFromIndividual(closest, oldInds);
                         
-            for(int i = 1; i < archive.size(); i++)
+            for(int i = 1; i < currentArchiveSize; i++)
                 {
                 Individual competitor = (Individual)(archive.get(i));
                 double[] competitorD = calculateDistancesFromIndividual(competitor, oldInds);
@@ -126,9 +128,13 @@ public class SPEA2Breeder extends SimpleBreeder
             // remove him destructively -- put the top guy in his place and remove the top guy.  This is O(1)
             archive.set(closestIndex, archive.get(archive.size()-1));
             archive.remove(archive.size()-1);
+                        
+            currentArchiveSize--;
             }
                                                 
-        // step 4: put archive into the new individuals
-        newInds.addAll(archive);
+        // step 4: put clones of the archive in the new individuals
+        Object[] obj = archive.toArray();
+        for(int i = 0; i < archiveSize; i++)
+            newInds.set(newInds.size() - archiveSize + i, (Individual)(((Individual)obj[i]).clone()));
         }
     }

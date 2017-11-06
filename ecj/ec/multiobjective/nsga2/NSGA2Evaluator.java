@@ -68,7 +68,8 @@ public class NSGA2Evaluator extends SimpleEvaluator
         {
         super.evaluatePopulation(state);
         for (int x = 0; x < state.population.subpops.size(); x++)
-            state.population.subpops.get(x).individuals = buildArchive(state, x);
+            state.population.subpops.get(x).individuals =
+                buildArchive(state, x);
         }
 
 
