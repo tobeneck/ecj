@@ -233,8 +233,7 @@ public class SimpleBreeder extends Breeder
             state.output.warnOnce("Largest subpopulation size (" + numThreads +") is smaller than number of breedthreads (" + state.breedthreads + "), so fewer breedthreads will be created.");
 
 		int numinds[][] = new int[numThreads][newpop.subpops.size()];
-		int from[][] = new int[numThreads][newpop.subpops.size()];
-		
+
         // determine numinds and from
         for(int x = 0; x< newpop.subpops.size(); x++)
             {
@@ -256,8 +255,7 @@ public class SimpleBreeder extends Breeder
 				// we will have some extra individuals.  We distribute these among the early subpopulations
 				int individualsPerThread = length / numThreads;  // integer division
 				int slop = length - numThreads * individualsPerThread;
-				int currentFrom = 0;
-				
+								
 				for(int y=0;y<numThreads;y++)
 					{
 					if (slop > 0)
@@ -267,9 +265,6 @@ public class SimpleBreeder extends Breeder
 						}
 					else
 						numinds[y][x] = individualsPerThread;
-
-					from[y][x] = currentFrom;
-					currentFrom += numinds[y][x];
 					
 					if (numinds[y][x] == 0)
 						{
@@ -283,7 +278,7 @@ public class SimpleBreeder extends Breeder
 
 		if (numThreads==1)
 			{
-			breedPopChunk(newpop,state,numinds[0],from[0],0);
+			breedPopChunk(newpop,state,numinds[0],0);
 			}
 		else
 			{
@@ -293,7 +288,6 @@ public class SimpleBreeder extends Breeder
 				SimpleBreederThread r = new SimpleBreederThread();
 				r.threadnum = y;
 				r.newpop = newpop;
-				r.from = from[y];
 				r.numinds = numinds[y];
 				r.me = this;
 				r.state = state;
@@ -328,10 +322,8 @@ public class SimpleBreeder extends Breeder
         Although this method is declared
         public (for the benefit of a private helper class in this file),
         you should not call it. */
-        
-    //// NOTE that from at this point is only used by the spatial breeder to determine its position in space.
 
-    protected void breedPopChunk(Population newpop, EvolutionState state, int[] numinds, int[] from, int threadnum) 
+    protected void breedPopChunk(Population newpop, EvolutionState state, int[] numinds, int threadnum) 
         {
         for(int subpop = 0; subpop< newpop.subpops.size(); subpop++)
             {
@@ -364,10 +356,6 @@ public class SimpleBreeder extends Breeder
 			bp.finishProducing(state,subpop,threadnum);
 			}
         }
-        
-    protected void breedPopChunkProduce(int position)
-    	{
-    	}
     
     static class EliteComparator implements SortComparatorL
         {
@@ -457,12 +445,11 @@ class SimpleBreederThread implements Runnable
     {
     Population newpop;
     public int[] numinds;
-    public int[] from;
     public SimpleBreeder me;
     public EvolutionState state;
     public int threadnum;
     public void run()
         {
-        me.breedPopChunk(newpop,state,numinds,from,threadnum);
+        me.breedPopChunk(newpop,state,numinds,threadnum);
         }
     }
