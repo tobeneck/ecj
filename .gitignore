@@ -22,3 +22,6 @@ ecj/src/main/resources/ec/app/mona/1-MonaLisaOut.png
 *.synctex.gz
 *.pdf
 *~
+
+out/*
+*.iml
