@@ -1,0 +1,7 @@
+
+stat		= ec.app.TracableProblems.TracableStatistics.JustStartingPopulationStatistics
+
+
+# Add our statistics files
+stat.stat-file = JustStartingPopulationStatisticsOut/startingEndingFitness.csv
+stat.starting-population-file = JustStartingPopulationStatisticsOut/startingPop.stat
