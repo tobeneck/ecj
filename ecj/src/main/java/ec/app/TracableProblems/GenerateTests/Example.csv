@@ -1,0 +1,10 @@
+paramsFile,outputPath,#runs,additionalParameters,problemName,difficulty,population
+../MaxOnes/ParamsFiles/simpleEasy.params,../TestOut/MaxOnes/Easy/,31,,Max Ones,Easy,Pop1
+../MaxOnes/ParamsFiles/simpleMedium.params,../TestOut/MaxOnes/Medium/,31,,Max Ones,Medium,Pop1
+../MaxOnes/ParamsFiles/simpleHard.params,../TestOut/MaxOnes/Hard/,31,,Max Ones,Hard,Pop1
+../BitVectorKnapsack/ParamsFiles/simpleEasy.params,../TestOut/MaxOnes/Easy/,31,,0/1 Knapsack,Easy,Pop1
+../BitVectorKnapsack/ParamsFiles/simpleMedium.params,../TestOut/MaxOnes/Medium/,31,,0/1 Knapsack,Medium,Pop1
+../BitVectorKnapsack/ParamsFiles/simpleHard.params,../TestOut/MaxOnes/Hard/,31,,0/1 Knapsack,Hard,Pop1
+../IntegerKnapsack/ParamsFiles/simpleEasy.params,../TestOut/MaxOnes/Easy/,31,,(Un)bound Knapsack,Easy,Pop1
+../IntegerKnapsack/ParamsFiles/simpleMedium.params,../TestOut/MaxOnes/Medium/,31,,(Un)bound Knapsack,Medium,Pop1
+../IntegerKnapsack/ParamsFiles/simpleHard.params,../TestOut/MaxOnes/Hard/,31,,(Un)bound Knapsack,Hard,Pop1
