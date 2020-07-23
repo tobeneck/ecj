@@ -91,6 +91,8 @@ public abstract class Individual implements Prototype, Comparable<Individual>
     /** Has the individual been evaluated and its fitness determined yet? */
     public boolean evaluated;
 
+    public int traceID;
+
     public Object clone()
         {
         try 
