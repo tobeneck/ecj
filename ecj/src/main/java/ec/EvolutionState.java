@@ -279,6 +279,8 @@ public class EvolutionState implements Singleton
     public final static String P_INNOVATIONNUMBER = "innovation-number";
     final static String P_CHECKPOINTPREFIX_OLD = "prefix";
 
+    public static int mutationCounter = 0;
+
     
     
 
