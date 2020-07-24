@@ -46,7 +46,7 @@ pop.subpop.0.species.ind	    = ec.vector.TracableBitVectorIndividual
 pop.subpop.0.species.genome-size	= 100
 pop.subpop.0.species.crossover-type	= two
 pop.subpop.0.species.mutation-type  = flip
-pop.subpop.0.species.mutation-prob	= 0.00
+pop.subpop.0.species.mutation-prob	= 0.01
 
 
 

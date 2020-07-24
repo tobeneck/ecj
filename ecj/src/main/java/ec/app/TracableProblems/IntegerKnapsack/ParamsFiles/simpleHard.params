@@ -47,7 +47,7 @@ pop.subpop.0.species.ind	    = ec.vector.TracableIntegerVectorIndividual
 pop.subpop.0.species.genome-size	= 20
 pop.subpop.0.species.crossover-type	= two
 pop.subpop.0.species.mutation-type  = reset
-pop.subpop.0.species.mutation-prob	= 0.00
+pop.subpop.0.species.mutation-prob	= 0.05
 
 
 
