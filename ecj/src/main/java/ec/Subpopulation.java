@@ -284,7 +284,7 @@ public class Subpopulation implements Cloneable, Setup
                 tries <= /* Yes, I see that*/ numDuplicateRetries; 
                 tries++)
                 {
-                newInd = species.newIndividual(state, thread);
+                newInd = species.newIndividual(state, thread, x); //x = traceID
                 
                 if (numDuplicateRetries >= 1)
                     {

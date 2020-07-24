@@ -134,6 +134,18 @@ public abstract class Species implements Prototype
         // ...and we're ready!
         return newind;
         }
+
+        /**  uses the other newIndividual(state, thread) method, but adds a traceID to the individual
+         */
+        public Individual newIndividual(final EvolutionState state, int thread, int traceID)
+        {
+            i_prototype.traceID = traceID; //not beautiful, but it works
+            Individual newInd = this.newIndividual(state, thread);
+            newInd.traceID = traceID;
+
+            // ...and we're ready!
+            return newInd;
+        }
     
     /**
        Provides an individual read from a stream, including
