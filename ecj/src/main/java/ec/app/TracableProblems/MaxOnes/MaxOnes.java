@@ -18,12 +18,12 @@ public class MaxOnes extends Problem implements SimpleProblemForm {
                          final int threadnum) {
         if (ind.evaluated) return;
 
-        if (!(ind instanceof TracableBitVectorIndividual))
+        if (!(ind instanceof TraceableBitVectorIndividual))
             state.output.fatal("Whoa!  It's not a (Tracable)BitVectorIndividual!!!", null);
 
 
         int sum=0;
-        TracableBitVectorIndividual ind2 = (TracableBitVectorIndividual)ind;
+        TraceableBitVectorIndividual ind2 = (TraceableBitVectorIndividual)ind;
 
         for(int x=0; x<ind2.genome.length; x++)
             sum += (ind2.genome[x].getValue() ? 1 : 0);

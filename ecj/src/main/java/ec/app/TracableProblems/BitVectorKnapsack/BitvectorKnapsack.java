@@ -36,10 +36,10 @@ public class BitvectorKnapsack extends Problem implements SimpleProblemForm {
             
 		if (ind.evaluated) return;
 		
-		if (!(ind instanceof TracableBitVectorIndividual))
+		if (!(ind instanceof TraceableBitVectorIndividual))
 			state.output.fatal("Whoa! It's not a TracableBitVectorIndividual!!!", null);
 		
-		TracableBitVectorIndividual ind2 = (TracableBitVectorIndividual)ind;
+		TraceableBitVectorIndividual ind2 = (TraceableBitVectorIndividual)ind;
 
 		float sumProfit = 0.0f, sumWeight = 0.0f;
 		for (int i = 0; i < ind2.genome.length; i++) {

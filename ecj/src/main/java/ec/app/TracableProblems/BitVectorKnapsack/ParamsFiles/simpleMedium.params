@@ -40,7 +40,7 @@ pop.subpop.0		            = ec.Subpopulation
 pop.subpop.0.size 		        = 20
 pop.subpop.0.duplicate-retries 	= 5
 pop.subpop.0.species 		    = ec.vector.BitVectorSpecies
-pop.subpop.0.species.ind	    = ec.vector.TracableBitVectorIndividual
+pop.subpop.0.species.ind	    = ec.vector.TraceableBitVectorIndividual
 
 
 #define the representation parameters
