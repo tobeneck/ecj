@@ -36,10 +36,10 @@ public class IntegerKnapsack extends Problem implements SimpleProblemForm {
             
 		if (ind.evaluated) return;
 		
-		if (!(ind instanceof TracableIntegerVectorIndividual))
+		if (!(ind instanceof TraceableIntegerVectorIndividual))
 			state.output.fatal("Whoa! It's not a TracableIntegerVectorIndividual!!!", null);
 		
-		TracableIntegerVectorIndividual ind2 = (TracableIntegerVectorIndividual)ind;
+		TraceableIntegerVectorIndividual ind2 = (TraceableIntegerVectorIndividual)ind;
 
 		float sumProfit = 0.0f, sumWeight = 0.0f;
 		for (int i = 0; i < ind2.genome.length; i++) {

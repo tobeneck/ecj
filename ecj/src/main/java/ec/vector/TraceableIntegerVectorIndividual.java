@@ -1,23 +1,26 @@
 package ec.vector;
 
 import ec.util.MersenneTwisterFast;
-import ec.vector.TracableDataTypes.TracableBoolean;
 import ec.EvolutionState;
 import ec.Individual;
 import ec.util.Code;
 import ec.util.DecodeReturn;
 import ec.util.Parameter;
-import ec.vector.TracableDataTypes.TracableInteger;
+import ec.vector.TracableDataTypes.TraceableFloat;
+import ec.vector.TracableDataTypes.TraceableInteger;
+import ec.vector.TracableDataTypes.TraceTuple;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class TracableIntegerVectorIndividual extends VectorIndividual {
+public class TraceableIntegerVectorIndividual extends VectorIndividual {
     public static final String P_TRACABLEINTEGERINDIVIDUAL = "trace-bit-vect-ind";
-    public TracableInteger[] genome;
+    public TraceableInteger[] genome;
 
     private int randomID = -1;
 
@@ -28,13 +31,13 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
 
     public Object clone()
     {
-        TracableIntegerVectorIndividual myobj = (TracableIntegerVectorIndividual) (super.clone());
+        TraceableIntegerVectorIndividual myobj = (TraceableIntegerVectorIndividual) (super.clone());
 
         // must clone the genome
         //NOTE: needs to be this fancy to avoid reference errors
-        myobj.genome = new TracableInteger[genome.length];
+        myobj.genome = new TraceableInteger[genome.length];
         for(int i = 0; i < genome.length; i++){
-            myobj.genome[i] = new TracableInteger(genome[i].getValue(), genome[i].getTraceID());
+            myobj.genome[i] = new TraceableInteger(genome[i].getValue(), genome[i].getTraceVector());
         }
 
         return myobj;
@@ -45,17 +48,67 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
         super.setup(state,base);  // actually unnecessary (Individual.setup() is empty)
 
         IntegerVectorSpecies s = (IntegerVectorSpecies)species;  // where my default info is stored
-        genome = new TracableInteger[s.genomeSize];
+        genome = new TraceableInteger[s.genomeSize];
         for (int i = 0; i < s.genomeSize; i++) {
-            genome[i] = new TracableInteger();
+            genome[i] = new TraceableInteger();
         }
+    }
+
+    /**
+     * combines two TraceableFloat genes (inline). The new
+     * @param a reference to the first genome
+     * @param b reference to the second genome
+     * @param new_a_value the new gene value of a
+     * @param new_b_value the new gene value of b
+     */
+    protected void recombineGenes(TraceableInteger a, TraceableInteger b, int new_a_value, int new_b_value){
+
+        double influence_a_a = Math.abs(a.getValue() - new_a_value) / (Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
+        double influence_a_b = Math.abs(b.getValue() - new_a_value) / (Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
+
+        double influence_b_a = Math.abs(a.getValue() - new_b_value) / (Math.abs(a.getValue() - new_b_value) + Math.abs(b.getValue() - new_b_value));
+        double influence_b_b = Math.abs(b.getValue() - new_b_value) / (Math.abs(a.getValue() - new_b_value) + Math.abs(b.getValue() - new_b_value));
+
+        int i = 0; //index for this traceVector
+        int j = 0; //index for the other traceVector
+
+        List<TraceTuple> a_traceVector = new ArrayList<TraceTuple>();
+        List<TraceTuple> b_traceVector = new ArrayList<TraceTuple>();
+
+        while(i < a.getTraceVector().size() && j < b.getTraceVector().size()){ //this iterates over the traceVector of this individual
+            int currentAID = a.getTraceVector().get(i).getTraceID();
+            int currentBID = b.getTraceVector().get(j).getTraceID();
+
+            int currentAImpact = a.getTraceVector().get(i).getTraceID();
+            int currentBImpact = b.getTraceVector().get(j).getTraceID();
+
+            if(currentAID == currentBID) {//combine the two if equal
+                a_traceVector.add(new TraceTuple(currentAID, influence_a_a * currentAImpact + (influence_a_b) * currentBImpact));
+                b_traceVector.add(new TraceTuple(currentAID, influence_b_b * currentBImpact + (influence_b_a) * currentAImpact));
+                i++;
+                j++;
+            }
+
+            if(currentAID < currentBID || j == b.getTraceVector().size()) {//add the traceID of a if its smaller than the traceID of b or if all traceIDs of b already are checked
+                a_traceVector.add(new TraceTuple(currentAID, influence_a_a * currentAImpact + (influence_a_b) * currentBImpact));
+                i++;
+            }
+
+            if(currentAID > currentBID || i == a.getTraceVector().size()) {//add the traceID of b if its smaller than the traceID of a or if all traceIDs of a already are checked
+                b_traceVector.add(new TraceTuple(currentAID, influence_b_b * currentBImpact + (influence_b_a) * currentAImpact));
+                j++;
+            }
+        }
+
+        a = new TraceableInteger(new_a_value, a_traceVector);
+        b = new TraceableInteger(new_b_value, b_traceVector);
     }
 
     public void defaultCrossover(EvolutionState state, int thread, VectorIndividual ind)
     {
         IntegerVectorSpecies s = (IntegerVectorSpecies)species;  // where my default info is stored
-        TracableIntegerVectorIndividual i = (TracableIntegerVectorIndividual) ind;
-        TracableInteger tmp;
+        TraceableIntegerVectorIndividual i = (TraceableIntegerVectorIndividual) ind;
+        TraceableInteger tmp;
         int point;
 
         int len = Math.min(genome.length, i.genome.length);
@@ -142,6 +195,44 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
             default:
                 state.output.fatal("In valid crossover type in TracableIntegerVectorIndividual.");
                 break;
+            case VectorSpecies.C_LINE_RECOMB:
+            {
+                double alpha = state.random[thread].nextDouble() * (1 + 2*s.lineDistance) - s.lineDistance;
+                double beta = state.random[thread].nextDouble() * (1 + 2*s.lineDistance) - s.lineDistance;
+                long t,u;
+                long min, max;
+                for (int x = 0; x < len; x++)
+                {
+                    min = s.minGene(x);
+                    max = s.maxGene(x);
+                    t = (long) Math.floor(alpha * genome[x].getValue() + (1 - alpha) * i.genome[x].getValue() + 0.5);
+                    u = (long) Math.floor(beta * i.genome[x].getValue() + (1 - beta) * genome[x].getValue() + 0.5);
+                    if (!(t < min || t > max || u < min || u > max))
+                    {
+                        this.recombineGenes(genome[x], i.genome[x], (int) t, (int) u);
+                    }
+                }
+            }
+            break;
+            case VectorSpecies.C_INTERMED_RECOMB:
+            {
+                long t,u;
+                long min, max;
+                for (int x = 0; x < len; x++)
+                {
+                    do
+                    {
+                        double alpha = state.random[thread].nextDouble() * (1 + 2*s.lineDistance) - s.lineDistance;
+                        double beta = state.random[thread].nextDouble() * (1 + 2*s.lineDistance) - s.lineDistance;
+                        min = s.minGene(x);
+                        max = s.maxGene(x);
+                        t = (long) Math.floor(alpha * genome[x].getValue() + (1 - alpha) * i.genome[x].getValue() + 0.5);
+                        u = (long) Math.floor(beta * i.genome[x].getValue() + (1 - beta) * genome[x].getValue() + 0.5);
+                    } while (t < min || t > max || u < min || u > max);
+                    this.recombineGenes(genome[x], i.genome[x], (int) t, (int) u);
+                }
+            }
+            break;
         }
     }
 
@@ -172,7 +263,7 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
             sum += ((boolean[])(pieces[x])).length;
 
         int runningsum = 0;
-        TracableInteger[] newgenome = new TracableInteger[sum];
+        TraceableInteger[] newgenome = new TraceableInteger[sum];
         for(int x=0;x<pieces.length;x++)
         {
             System.arraycopy(pieces[x], 0, newgenome, runningsum, ((boolean[])(pieces[x])).length);
@@ -180,6 +271,44 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
         }
         // set genome
         genome = newgenome;
+    }
+
+    /**
+     * sets the gene with 100% influence of the traceID
+     * @param gene the gene to be set
+     * @param value the value for the gene
+     * @param traceID the traceID of the gene
+     */
+    private void setGene(TraceableInteger gene, int value, int traceID){
+        List<TraceTuple> traceVector = new ArrayList<TraceTuple>();
+        traceVector.add(new TraceTuple(traceID, 1.0));
+        gene.setValue(value, traceVector);
+    }
+
+    /**
+     * handles the mutation of one gene. Sets both the value and the traceVector
+     * @param a the gene to be mutated
+     * @param new_a_value the new value of gene a
+     */
+    private void mutateGene(TraceableInteger a, int new_a_value, int mutationCounter){
+
+        double influence_mut = Math.abs(new_a_value - a.getValue()) / Math.abs(new_a_value);
+        double influence_old = 1 - influence_mut;
+
+        List<TraceTuple> a_traceVector = new ArrayList<TraceTuple>();
+
+        a_traceVector.add(new TraceTuple(mutationCounter, influence_mut));
+
+        int i = 0; //index for this traceVector
+        while(i < a.getTraceVector().size()){ //this iterates over the traceVector of this individual
+            int currentAID = a.getTraceVector().get(i).getTraceID();
+            int currentAImpact = a.getTraceVector().get(i).getTraceID();
+
+            a_traceVector.add(new TraceTuple(currentAID, influence_old * currentAImpact));
+            i++;
+        }
+
+        a = new TraceableInteger(new_a_value, a_traceVector);
     }
 
     /** Destructively mutates the individual in some default manner.  The default form
@@ -196,13 +325,17 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
                     switch(s.mutationType(x))
                     {
                         case IntegerVectorSpecies.C_RESET_MUTATION:
+                        {
                             state.mutationCounter--;
-                            genome[x].setValue(randomValueFromClosedInterval((int)s.minGene(x), (int)s.maxGene(x), state.random[thread]), state.mutationCounter);
+                            //for random mutation the mutation value is completely random
+                            int newValue = randomValueFromClosedInterval((int)s.minGene(x), (int)s.maxGene(x), state.random[thread]);
+                            this.setGene(genome[x], newValue, state.mutationCounter);
+                        }
                             break;
                         case IntegerVectorSpecies.C_RANDOM_WALK_MUTATION:
-                            state.mutationCounter--;
                             int min = (int)s.minGene(x);
                             int max = (int)s.maxGene(x);
+                            int newValue = genome[x].getValue();
                             if (!s.mutationIsBounded(x))
                             {
                                 // okay, technically these are still bounds, but we can't go beyond this without weird things happening
@@ -212,17 +345,16 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
                             do
                             {
                                 int n = (int)(state.random[thread].nextBoolean() ? 1 : -1);
-                                int g = genome[x].getValue();
-                                if ((n == 1 && g < max) ||
-                                        (n == -1 && g > min)) {
-                                    genome[x].setValue(g + n, state.mutationCounter);
+                                if ((n == 1 && newValue < max) || (n == -1 && newValue > min)) {
+                                    newValue = newValue + n;
                                 }
-                                else if ((n == -1 && g < max) ||
-                                        (n == 1 && g > min)) {
-                                    genome[x].setValue(g - n, state.mutationCounter);
+                                else if ((n == -1 && newValue < max) || (n == 1 && newValue > min)) {
+                                    newValue = newValue - n;
                                 }
                             }
                             while (state.random[thread].nextBoolean(s.randomWalkProbability(x)));
+                            state.mutationCounter--;
+                            this.mutateGene(genome[x], newValue, state.mutationCounter);
                             break;
                         default:
                             state.output.fatal("In IntegerVectorIndividual.defaultMutate, default case occurred when it shouldn't have");
@@ -253,8 +385,11 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
     public void reset(EvolutionState state, int thread)
     {
         IntegerVectorSpecies s = (IntegerVectorSpecies) species;
-        for(int x=0;x<genome.length;x++)
-            genome[x].setValue(randomValueFromClosedInterval((int)s.minGene(x), (int)s.maxGene(x), state.random[thread]), this.traceID);
+        for(int x=0;x<genome.length;x++) {
+            List<TraceTuple> traceVector = new ArrayList<TraceTuple>();
+            traceVector.add(new TraceTuple(this.traceID, 1.0));
+            this.setGene(genome[x], randomValueFromClosedInterval((int) s.minGene(x), (int) s.maxGene(x), state.random[thread]), this.traceID);
+        }
     }
 
     public int hashCode()
@@ -271,7 +406,7 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
     {
         StringBuilder s = new StringBuilder();
         for( int i = 0 ; i < genome.length ; i++ )
-        { if (i > 0) s.append("; "); s.append(genome[i].getValue() + "," + genome[i].getTraceID()); }
+        { if (i > 0) s.append("; "); s.append(genome[i].getValue() + "," + genome[i].getTraceVector().toString()); }
         return s.toString();
     }
 
@@ -284,7 +419,7 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
         StringBuilder s = new StringBuilder();
         s.append( Code.encode( genome.length ) );
         for( int i = 0 ; i < genome.length ; i++ ) {
-            s.append(Code.encode(genome[i].getValue() + "," + genome[i].getTraceID()));
+            s.append(Code.encode(genome[i].getValue() + "," + genome[i].getTraceVector().toString()));
         }
         return s.toString();
     }
@@ -298,14 +433,14 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
 
         int lll = (int)(d.l);
 
-        genome = new TracableInteger[ lll ];
+        genome = new TraceableInteger[ lll ];
 
         // read in the genes
         for( int i = 0 ; i < genome.length ; i++ )
         {
             Code.decode( d );
             String[] data = d.s.split(",");
-            genome[i] = new TracableInteger(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
+            genome[i] = new TraceableInteger(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
         }
     }
 
@@ -314,7 +449,7 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
         System.out.println("equals called"); //DEBUGG: check if called, delete if i know when
         if (ind==null) return false;
         if (!(this.getClass().equals(ind.getClass()))) return false; // SimpleRuleIndividuals are special.
-        TracableIntegerVectorIndividual i = (TracableIntegerVectorIndividual)ind;
+        TraceableIntegerVectorIndividual i = (TraceableIntegerVectorIndividual)ind;
         if( genome.length != i.genome.length )
             return false;
         for( int j = 0 ; j < genome.length ; j++ )
@@ -326,7 +461,7 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
     public Object getGenome()
     { return genome; }
     public void setGenome(Object gen)
-    { genome = (TracableInteger[]) gen; }
+    { genome = (TraceableInteger[]) gen; }
     public int genomeLength()
     { return genome.length; }
 
@@ -355,7 +490,7 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
     public void setGenomeLength(int len)
     {
         System.out.println("setGenotypeLength called"); //DEBUGG: check if called, delete if i know when
-        TracableInteger[] newGenome = new TracableInteger[len];
+        TraceableInteger[] newGenome = new TraceableInteger[len];
         System.arraycopy(genome, 0, newGenome, 0,
                 genome.length < newGenome.length ? genome.length : newGenome.length);
         genome = newGenome;
@@ -367,7 +502,7 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
         System.out.println("writeGenotype called"); //DEBUGG: check if called, delete if i know when
         dataOutput.writeInt(genome.length);
         for(int x=0;x<genome.length;x++)
-            dataOutput.writeBytes(genome[x].getValue() + "from individual "+ genome[x].getTraceID());  // is .writeBytes right? How is this method used?
+            dataOutput.writeBytes(genome[x].getValue() + "from individual "+ genome[x].getTraceVector().toString());  // is .writeBytes right? How is this method used?
     }
 
     public void readGenotype(final EvolutionState state,
@@ -386,9 +521,9 @@ public class TracableIntegerVectorIndividual extends VectorIndividual {
 
     public double distanceTo(Individual otherInd)
     {
-        TracableIntegerVectorIndividual other = (TracableIntegerVectorIndividual) otherInd;
+        TraceableIntegerVectorIndividual other = (TraceableIntegerVectorIndividual) otherInd;
 
-        TracableInteger[] otherGenome = other.genome;
+        TraceableInteger[] otherGenome = other.genome;
         double sumSquaredDistance =0.0;
         for(int i=0; i < other.genomeLength(); i++)
         {

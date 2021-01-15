@@ -40,7 +40,7 @@ pop.subpop.0		            = ec.Subpopulation
 pop.subpop.0.size 		        = 20
 pop.subpop.0.duplicate-retries 	= 5
 pop.subpop.0.species 		    = ec.vector.IntegerVectorSpecies
-pop.subpop.0.species.ind	    = ec.vector.TracableIntegerVectorIndividual
+pop.subpop.0.species.ind	    = ec.vector.TraceableIntegerVectorIndividual
 
 
 #define the representation parameters                                                                           #CHANGES: mutation-type/prob

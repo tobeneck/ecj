@@ -202,7 +202,7 @@ public class IntegerVectorSpecies extends VectorSpecies
             return (geneVal <= Byte.MAX_VALUE && geneVal >= Byte.MIN_VALUE);
         else if (i_prototype instanceof ShortVectorIndividual)
             return (geneVal <= Short.MAX_VALUE && geneVal >= Short.MIN_VALUE);
-        else if (i_prototype instanceof IntegerVectorIndividual || i_prototype instanceof TracableIntegerVectorIndividual)
+        else if (i_prototype instanceof IntegerVectorIndividual || i_prototype instanceof TraceableIntegerVectorIndividual)
             return (geneVal <= Integer.MAX_VALUE && geneVal >= Integer.MIN_VALUE);
         else if (i_prototype instanceof LongVectorIndividual)
             return true;  // geneVal is valid for all longs
