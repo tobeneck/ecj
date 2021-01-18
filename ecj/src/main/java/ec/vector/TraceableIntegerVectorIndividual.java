@@ -62,6 +62,8 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
      * @param new_b_value the new gene value of b
      */
     protected void recombineGenes(TraceableInteger a, TraceableInteger b, int new_a_value, int new_b_value){
+        if(a.getValue() == new_a_value && b.getValue() == new_b_value)
+            return; //return if nothing changes. Otherwise divide by 0 error!
 
         double influence_a_a = Math.abs(a.getValue() - new_a_value) / (Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
         double influence_a_b = Math.abs(b.getValue() - new_a_value) / (Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
@@ -406,7 +408,10 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
     {
         StringBuilder s = new StringBuilder();
         for( int i = 0 ; i < genome.length ; i++ )
-        { if (i > 0) s.append("; "); s.append(genome[i].getValue() + "," + genome[i].getTraceVector().toString()); }
+        {
+            if (i > 0) s.append("; ");
+            s.append(genome[i].toString());
+        }
         return s.toString();
     }
 
@@ -419,7 +424,7 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
         StringBuilder s = new StringBuilder();
         s.append( Code.encode( genome.length ) );
         for( int i = 0 ; i < genome.length ; i++ ) {
-            s.append(Code.encode(genome[i].getValue() + "," + genome[i].getTraceVector().toString()));
+            s.append(Code.encode(genome[i].toString()));
         }
         return s.toString();
     }
@@ -499,10 +504,10 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
     public void writeGenotype(final EvolutionState state,
                               final DataOutput dataOutput) throws IOException
     {
-        System.out.println("writeGenotype called"); //DEBUGG: check if called, delete if i know when
         dataOutput.writeInt(genome.length);
         for(int x=0;x<genome.length;x++)
-            dataOutput.writeBytes(genome[x].getValue() + "from individual "+ genome[x].getTraceVector().toString());  // is .writeBytes right? How is this method used?
+            dataOutput.writeBytes(genome[x].toString());  //TODO: fix!
+            //dataOutput.writeBytes(genome[x].getValue() + "from individual "+ genome[x].getTraceVector().toString());  // is .writeBytes right? How is this method used?
     }
 
     public void readGenotype(final EvolutionState state,
@@ -516,6 +521,7 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
             for(int x=0;x<genome.length;x++)
                 genome[x] = dataInput.readBoolean();
              */
+        //TODO: implement
     }
 
 

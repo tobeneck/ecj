@@ -149,6 +149,8 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
      * @param new_b_value the new gene value of b
      */
     private void recombineGenes(TraceableFloat a, TraceableFloat b, float new_a_value, float new_b_value){
+        if(a.getValue() == new_a_value && b.getValue() == new_b_value)
+            return; //return if nothing changes. Otherwise divide by 0 error!
 
         double influence_a_a = Math.abs(a.getValue() - new_a_value) / (Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
         double influence_a_b = Math.abs(b.getValue() - new_a_value) / (Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
