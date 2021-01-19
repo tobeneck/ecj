@@ -209,7 +209,6 @@ public class TraceableBitVectorIndividual extends VectorIndividual {
      * @param new_a_value the new value of gene a
      */
     private void mutateGene(TraceableBoolean a, boolean new_a_value, int mutationCounter){
-
         double influence_mut = 0.5; //as there are just two values, the influence of a mutation is always 50%
         double influence_old = 1 - influence_mut;
 

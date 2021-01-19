@@ -55,55 +55,74 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
     }
 
     /**
-     * combines two TraceableFloat genes (inline). The new
-     * @param a reference to the first genome
-     * @param b reference to the second genome
+     * combines two TraceableFloat genes. Returns the new gene value.
+     * @param a reference to the first gene
+     * @param b reference to the second gene
      * @param new_a_value the new gene value of a
-     * @param new_b_value the new gene value of b
+     * @return the new, combined gene
      */
-    protected void recombineGenes(TraceableInteger a, TraceableInteger b, int new_a_value, int new_b_value){
-        if(a.getValue() == new_a_value && b.getValue() == new_b_value)
-            return; //return if nothing changes. Otherwise divide by 0 error!
+    protected static TraceableInteger recombineGenes(TraceableInteger a, TraceableInteger b, int new_a_value){
 
-        double influence_a_a = Math.abs(a.getValue() - new_a_value) / (Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
-        double influence_a_b = Math.abs(b.getValue() - new_a_value) / (Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
+        // of aVal = bVal = newVal, both genes should have 50% impact
+        double influence_factor_a = 0.5;
+        double influence_factor_b = 0.5;
 
-        double influence_b_a = Math.abs(a.getValue() - new_b_value) / (Math.abs(a.getValue() - new_b_value) + Math.abs(b.getValue() - new_b_value));
-        double influence_b_b = Math.abs(b.getValue() - new_b_value) / (Math.abs(a.getValue() - new_b_value) + Math.abs(b.getValue() - new_b_value));
+        if(a.getValue() == new_a_value && b.getValue() != new_a_value) //return a if it has 100% influence. Faster and avoids 0.0 impact traceTuples
+            return a;
+        if(b.getValue() == new_a_value && a.getValue() != new_a_value) //return b if it has 100% influence. Faster and avoids 0.0 impact traceTuples
+            return b;
+        if(a.getValue() != new_a_value && b.getValue() != new_a_value) { //compute the new values if non of them are equal
+            //if you don't cast here, the resulting values are integers and will be roundet!
+            influence_factor_a = 1.0 - (double)Math.abs(a.getValue() - new_a_value) / (double)(Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
+            influence_factor_b = 1.0 - (double)Math.abs(b.getValue() - new_a_value) / (double)(Math.abs(a.getValue() - new_a_value) + Math.abs(b.getValue() - new_a_value));
+        }
 
-        int i = 0; //index for this traceVector
-        int j = 0; //index for the other traceVector
+        int i = 0; //index for trace vector a
+        int j = 0; //index for trace vector b
 
-        List<TraceTuple> a_traceVector = new ArrayList<TraceTuple>();
-        List<TraceTuple> b_traceVector = new ArrayList<TraceTuple>();
+        List<TraceTuple> new_traceVector = new ArrayList<TraceTuple>();
 
-        while(i < a.getTraceVector().size() && j < b.getTraceVector().size()){ //this iterates over the traceVector of this individual
-            int currentAID = a.getTraceVector().get(i).getTraceID();
-            int currentBID = b.getTraceVector().get(j).getTraceID();
-
-            int currentAImpact = a.getTraceVector().get(i).getTraceID();
-            int currentBImpact = b.getTraceVector().get(j).getTraceID();
-
-            if(currentAID == currentBID) {//combine the two if equal
-                a_traceVector.add(new TraceTuple(currentAID, influence_a_a * currentAImpact + (influence_a_b) * currentBImpact));
-                b_traceVector.add(new TraceTuple(currentAID, influence_b_b * currentBImpact + (influence_b_a) * currentAImpact));
-                i++;
+        while(true){ //this iterates over the traceVector of this individual
+            if(i >= a.getTraceVector().size() && j >= b.getTraceVector().size()) //stop if both vectors are empty
+                break;
+            else if(i >= a.getTraceVector().size() && !(j >= b.getTraceVector().size())){//append if the a vector is empty and b vector is not.
+                int currentBID = b.getTraceVector().get(j).getTraceID();
+                double currentBImpact = b.getTraceVector().get(j).getImpact();
+                new_traceVector.add(new TraceTuple(currentBID, influence_factor_b * currentBImpact));
                 j++;
             }
-
-            if(currentAID < currentBID || j == b.getTraceVector().size()) {//add the traceID of a if its smaller than the traceID of b or if all traceIDs of b already are checked
-                a_traceVector.add(new TraceTuple(currentAID, influence_a_a * currentAImpact + (influence_a_b) * currentBImpact));
+            else if(!(i >= a.getTraceVector().size()) && j >= b.getTraceVector().size()){//append if the b vector is empty and a vector is not.
+                int currentAID = a.getTraceVector().get(i).getTraceID();
+                double currentAImpact = a.getTraceVector().get(i).getImpact();
+                new_traceVector.add(new TraceTuple(currentAID, influence_factor_a * currentAImpact));
                 i++;
             }
+            else {//if both arrays are not empty, append the next traceID:
+                int currentAID = a.getTraceVector().get(i).getTraceID();
+                int currentBID = b.getTraceVector().get(j).getTraceID();
 
-            if(currentAID > currentBID || i == a.getTraceVector().size()) {//add the traceID of b if its smaller than the traceID of a or if all traceIDs of a already are checked
-                b_traceVector.add(new TraceTuple(currentAID, influence_b_b * currentBImpact + (influence_b_a) * currentAImpact));
-                j++;
+                double currentAImpact = a.getTraceVector().get(i).getImpact();
+                double currentBImpact = b.getTraceVector().get(j).getImpact();
+
+                if (currentAID == currentBID) {//combine the two if equal
+                    new_traceVector.add(new TraceTuple(currentAID, influence_factor_a * currentAImpact + influence_factor_b * currentBImpact));
+                    i++;
+                    j++;
+                }
+
+                if (currentAID < currentBID) {//add the traceID of a if its smaller than the traceID of b
+                    new_traceVector.add(new TraceTuple(currentAID, influence_factor_a * currentAImpact));
+                    i++;
+                }
+
+                if (currentBID < currentAID) {//add the traceID of b if its smaller than the traceID of a
+                    new_traceVector.add(new TraceTuple(currentBID, influence_factor_b * currentBImpact));
+                    j++;
+                }
             }
         }
 
-        a = new TraceableInteger(new_a_value, a_traceVector);
-        b = new TraceableInteger(new_b_value, b_traceVector);
+        return new TraceableInteger(new_a_value, new_traceVector);
     }
 
     public void defaultCrossover(EvolutionState state, int thread, VectorIndividual ind)
@@ -211,7 +230,8 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
                     u = (long) Math.floor(beta * i.genome[x].getValue() + (1 - beta) * genome[x].getValue() + 0.5);
                     if (!(t < min || t > max || u < min || u > max))
                     {
-                        this.recombineGenes(genome[x], i.genome[x], (int) t, (int) u);
+                        genome[x] = this.recombineGenes(genome[x], i.genome[x], (int) t);
+                        i.genome[x] = this.recombineGenes(i.genome[x], genome[x], (int) u);
                     }
                 }
             }
@@ -231,7 +251,8 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
                         t = (long) Math.floor(alpha * genome[x].getValue() + (1 - alpha) * i.genome[x].getValue() + 0.5);
                         u = (long) Math.floor(beta * i.genome[x].getValue() + (1 - beta) * genome[x].getValue() + 0.5);
                     } while (t < min || t > max || u < min || u > max);
-                    this.recombineGenes(genome[x], i.genome[x], (int) t, (int) u);
+                    genome[x] = this.recombineGenes(genome[x], i.genome[x], (int) t);
+                    i.genome[x] = this.recombineGenes(i.genome[x], genome[x], (int) u);
                 }
             }
             break;
