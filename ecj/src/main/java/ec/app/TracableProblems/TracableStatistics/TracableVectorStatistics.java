@@ -6,10 +6,14 @@ import ec.Statistics;
 import ec.app.TracableProblems.TracableStatistics.ListOperations.DoubleListOperations;
 import ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualListOperations;
 import ec.util.Parameter;
+import ec.vector.TracableDataTypes.TraceableString;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+
+import static ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualListOperations.getGenomeLength;
+import static ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualListOperations.getGenotypeString;
 
 public class TracableVectorStatistics extends Statistics
 {
@@ -272,7 +276,17 @@ public class TracableVectorStatistics extends Statistics
         // be certain to call the hook on super!
         //super.postEvaluationStatistics(state);
 
-        ArrayList<Individual> inds = state.population.subpops.get(0).individuals;
+        ArrayList<Individual> inds = state.population.subpops.get(0).individuals; //provides fitness and strings to deconstruct
+        ArrayList<ArrayList<TraceableString>> genomes = new ArrayList<ArrayList<TraceableString>>(); //provides the genomes (values and traceVectors) of the inds. As the inds have a generic datatype, this is the only way to keep it interchangeable with other traceableDatatypes.
+        for(int i = 0; i < inds.size(); i++){
+            genomes.add(new ArrayList<TraceableString>());
+            String[] genotypeString = getGenotypeString(inds.get(i));
+            for(int j = 0; j < genotypeString.length; j++) {
+                TraceableString currentInd = new TraceableString();
+                currentInd.fromString(genotypeString[j]);
+                genomes.get(i).add(currentInd);
+            }
+        }
 
         //print the startingPopulationFile and the startingFitness
         if(state.generation == 0){
@@ -290,7 +304,7 @@ public class TracableVectorStatistics extends Statistics
         state.population.printPopulation(state,popLog);
 
 
-        //print the impactFiles
+        //print the fitnessFile
         String fitnessOut = state.generation +"";
         for(int i = 0; i < inds.size(); i++) {
             fitnessOut += "," + inds.get(i).fitness.fitness();
@@ -300,10 +314,9 @@ public class TracableVectorStatistics extends Statistics
         //print the traceIDsFile
         for(int i = 0; i < inds.size(); i++) {
             String out = state.generation + "," + i + ",";
-            String[] genotypeString = inds.get(i).genotypeToString().split("\"");
-            for(int j = 1; j < genotypeString.length; j++){
-                if(!genotypeString[j].isEmpty())
-                    out = out + genotypeString[j].split(",")[1] + ",";
+            ArrayList<TraceableString> currentGenome = genomes.get(i);
+            for(int j = 0; j < currentGenome.size(); j++){
+                out = out + "\""+currentGenome.get(j).getTraceVector() + "\",";
             }
 
             out = out.substring(0, out.length() - 1);
@@ -313,10 +326,9 @@ public class TracableVectorStatistics extends Statistics
         //print the genomeFile
         for(int i = 0; i < inds.size(); i++) {
             String out = state.generation + "," + i + ",";
-            String[] genotypeString = inds.get(i).genotypeToString().split("\"");
-            for(int j = 1; j < genotypeString.length; j++){
-                if(!genotypeString[j].isEmpty())
-                    out = out + genotypeString[j].split(",")[0] + ",";
+            ArrayList<TraceableString> currentGenomes = genomes.get(i);
+            for(int j = 0; j < currentGenomes.size(); j++){
+                out = out + currentGenomes.get(j).getValue() + ",";
             }
 
             out = out.substring(0, out.length() - 1);
@@ -387,12 +399,12 @@ public class TracableVectorStatistics extends Statistics
         normalizedFitnessEntropyImpactString += state.generation +", " + DoubleListOperations.listToString(normalizedFitnessEntropyImpactHead) + ", " + DoubleListOperations.getSum(normalizedFitnessEntropyImpactTail) + ", " + DoubleListOperations.listToString(normalizedFitnessEntropyImpactTail) + "\n";
 
         //print the entropyFile
-        entropyString += state.generation + ", " + IndividualListOperations.calculateEntropy(inds) + "\n";
+        entropyString += state.generation + ", " ;//+ IndividualListOperations.calculateEntropy(inds) + "\n"; //TODO: also fix this
     }
 
     @Override
     public void finalStatistics(EvolutionState state, int result) {
-        int genomeLength = IndividualListOperations.getGenomeLength(state.population.subpops.get(0).individuals.get(0));
+        int genomeLength = getGenomeLength(state.population.subpops.get(0).individuals.get(0));
         String headder = "";
 
         ArrayList<Individual> inds = state.population.subpops.get(0).individuals;
@@ -421,11 +433,11 @@ public class TracableVectorStatistics extends Statistics
         normalizedEntropyImpactString = headder + "\n" + normalizedEntropyImpactString;
         normalizedFitnessEntropyImpactString = headder + "\n" + normalizedFitnessEntropyImpactString;
 
-        //traceID and genome headder
-        headder = "generation, indID";
-        for(int i = 1; i <= genomeLength; i++)
-            headder += ", traceID_" + i;
-        traceIDsString = headder + "\n" + traceIDsString;
+//        //traceID and genome headder //TODO: delete?
+//        headder = "generation, indID";
+//        for(int i = 1; i <= genomeLength; i++)
+//            headder += ", traceID_" + i;
+//        traceIDsString = headder + "\n" + traceIDsString;
 
         //traceID and genome headder
         headder = "generation, indID";

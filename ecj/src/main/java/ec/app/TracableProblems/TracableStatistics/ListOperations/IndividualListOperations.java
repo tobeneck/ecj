@@ -1,6 +1,8 @@
 package ec.app.TracableProblems.TracableStatistics.ListOperations;
 
 import ec.Individual;
+import ec.vector.TracableDataTypes.TraceTuple;
+import ec.vector.TracableDataTypes.TraceableString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +37,7 @@ public class IndividualListOperations {
     /**
      * returns the genomes as a String array
      */
-    public static String[] getGenotype(Individual ind){
+    public static String[] getGenotypeString(Individual ind){
         String[] array = ind.genotypeToString().split("\"");
         List<String> list = new ArrayList<String>(Arrays.asList(array));
 
@@ -43,7 +45,7 @@ public class IndividualListOperations {
             list.remove("");
         }
 
-        list.remove(0);
+        list.remove(0); //remove the encoded genomeLength
 
         return list.toArray(new String[0]);
     }
@@ -96,7 +98,7 @@ public class IndividualListOperations {
             List<String> genomeEntropy = new ArrayList<String>();
             String entropyString = "";
             for(int j = 0; j < inds.size(); j++){
-                String[] genotypeString = getGenotype(inds.get(j));
+                String[] genotypeString = getGenotypeString(inds.get(j));
                 String traceID = genotypeString[i].split(",")[1];
                 genomeEntropy.add(traceID);
                 overallEntropy.add(traceID);
@@ -119,19 +121,23 @@ public class IndividualListOperations {
 
         List<String> stringList = new ArrayList<String>();
         for(int i = 0; i < inds.size(); i++){
-            String[] genotypeString = getGenotype(inds.get(i));
-             String traceID = genotypeString[genomeColumn].split(",")[1];
+            String[] genotypeString = getGenotypeString(inds.get(i));
+            String traceID = genotypeString[genomeColumn].split(",")[1];
             stringList.add(traceID);
         }
 
         return StringListOperations.getShannonEntropy(stringList);
     }
 
-    /***
+    /**
      * returns a double Array with the length of three, containing in order:
      * countingImpact, fitnessImpact and entropyImpact
+     * @param currentTraceID the current traceID to be checked
+     * @param inds the individuals the traceID should be calculated for
+     * @return [countingImpact, fitnessImpact, entropImpact, fitnessEntropyImpact]
      */
-    public static double[] calculateImpact(int k, ArrayList<Individual> inds){ //TODO: delete k, input a entropy string?
+    public static double[] calculateImpact(int currentTraceID, ArrayList<Individual> inds, ArrayList<ArrayList<TraceableString>> genomes){ //TODO: delete k, input a entropy string?
+        //TODO: input the TraceableString List instead of a ArrayList
         double countingImpact = 0;
         double fitnessImpact = 0;
         double entropyImpact = 0;
@@ -139,27 +145,26 @@ public class IndividualListOperations {
         double bestFitness = getMaxFitness(inds);
         double worstFitness = getMinFitness(inds);
 
-        for(int i = 0; i < inds.size(); i++){
-            String[] genotypeString = getGenotype(inds.get(i));
+        for(int i = 0; i < inds.size(); i++){//iterate over the individuals
+            String[] genotypeString = getGenotypeString(inds.get(i)); //TODO: input the genomes as a variable
             int popSize = inds.size();
             int genomeLength = getGenomeLength(inds.get(i));
-            for(int j = 0; j < genotypeString.length; j++){
-                int traceID = Integer.parseInt(genotypeString[j].split(",")[1]);
-                if(traceID == k){
-                    double entropyFactor = calculateEntropyOnGenome(j, inds);
-                    //double diffToBest = bestFitness - inds.get(i).fitness.fitness(); //the old diff to best stuff
-                    //countingImpact += 1.0/(popSize * genomeLength);
-                    //fitnessImpact += (1.0/(popSize * genomeLength)) * (1.0/(diffToBest + 1));
-                    //entropyImpact += (1.0/(popSize * genomeLength)) * (1 + entropyFactor);
-                    //fitnessEntropyImpact += (1.0/(popSize * genomeLength)) * (1.0/(diffToBest + 1)) * (1 + entropyFactor);
+            ArrayList<TraceableString> currentGenome = genomes.get(i);
+            for(int j = 0; j < currentGenome.size(); j++){ //iterate over the genes
+                TraceableString currentGene = currentGenome.get(j);
+                List<TraceTuple> currentTraceVector = currentGene.getTraceVector();
+                for(int k = 0; k < currentTraceVector.size(); k++){ //iterate over the traceVector
+                    int traceID = currentTraceVector.get(k).getTraceID();
+                    double influence = currentTraceVector.get(k).getImpact(); //the influence of the traceID in the gene
+                    if(traceID == currentTraceID){
+                        double entropyFactor = 1.0;//calculateEntropyOnGenome(j, inds); //TODO: this needs to be changed
+                        double diffToWorst = inds.get(i).fitness.fitness() - worstFitness;
 
-                    double diffToWorst = inds.get(i).fitness.fitness() - worstFitness;
-
-                    countingImpact += 1.0/(popSize * genomeLength);
-                    fitnessImpact += (1.0/(popSize * genomeLength)) * (1 + diffToWorst);
-                    entropyImpact += (1.0/(popSize * genomeLength)) * (1 + entropyFactor);
-                    fitnessEntropyImpact += (1.0/(popSize * genomeLength)) * (1 + diffToWorst) * (1 + entropyFactor);
-                    //System.out.println(countingImpact +", "+fitnessImpact + ", " +entropyImpact +", "+ fitnessEntropyImpact);
+                        countingImpact += influence/(popSize * genomeLength);
+                        fitnessImpact += (influence/(popSize * genomeLength)) * (1 + diffToWorst);
+                        entropyImpact += (influence/(popSize * genomeLength)) * (1 + entropyFactor);
+                        fitnessEntropyImpact += (influence/(popSize * genomeLength)) * (1 + diffToWorst) * (1 + entropyFactor);
+                    }
                 }
             }
         }
