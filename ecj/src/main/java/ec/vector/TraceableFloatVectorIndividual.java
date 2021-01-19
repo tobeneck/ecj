@@ -385,44 +385,35 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         genome = newgenome;
     }
 
-
     /**
-     * sets the gene with 100% influence of the traceID
-     * @param gene the gene to be set
-     * @param value the value for the gene
-     * @param traceID the traceID of the gene
-     */
-    private void setGene(TraceableFloat gene, float value, int traceID){
-        List<TraceTuple> traceVector = new ArrayList<TraceTuple>();
-        traceVector.add(new TraceTuple(traceID, 1.0));
-        gene.setValue(value, traceVector);
-    }
-
-    /**
-     * handles the mutation of one gene. Sets both the value and the traceVector
+     * handles the mutation of one gene.
      * @param a the gene to be mutated
      * @param new_a_value the new value of gene a
+     * @param mutationCounter the current mutation counter used for the traceID
+     * @return the new, mutated gene
      */
-    private void mutateGene(TraceableFloat a, float new_a_value, int mutationCounter){
+    private TraceableFloat mutateGene(TraceableFloat a, float new_a_value, int mutationCounter){
 
-        double influence_mut = Math.abs(new_a_value - a.getValue()) / Math.abs(new_a_value);
-        double influence_old = 1 - influence_mut;
-        //TODO: what if the base value is not 0?
+        if(a.getValue() == new_a_value)//return the original gene if the value was not altered
+            return a;
+
+        double influence_factor_mut = Math.abs(a.getValue() - new_a_value) / (Math.abs(a.getValue()) + Math.abs(a.getValue() - new_a_value));
+        double influence_factor_old = 1 - influence_factor_mut;
 
         List<TraceTuple> a_traceVector = new ArrayList<TraceTuple>();
 
-        a_traceVector.add(new TraceTuple(mutationCounter, influence_mut));
+        a_traceVector.add(new TraceTuple(mutationCounter, influence_factor_mut));
 
         int i = 0; //index for this traceVector
         while(i < a.getTraceVector().size()){ //this iterates over the traceVector of this individual
             int currentAID = a.getTraceVector().get(i).getTraceID();
             int currentAImpact = a.getTraceVector().get(i).getTraceID();
 
-            a_traceVector.add(new TraceTuple(currentAID, influence_old * currentAImpact));
+            a_traceVector.add(new TraceTuple(currentAID, influence_factor_old * currentAImpact));
             i++;
         }
 
-        a = new TraceableFloat(new_a_value, a_traceVector);
+        return new TraceableFloat(new_a_value, a_traceVector);
     }
 
     /**
@@ -498,7 +489,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         while (random.nextBoolean(species.randomWalkProbability(index)));
 
         state.mutationCounter--;
-        this.mutateGene(genome[index], newValue, state.mutationCounter);
+        genome[index] = this.mutateGene(genome[index], newValue, state.mutationCounter);
     }
 
     void integerResetMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
@@ -506,7 +497,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         int minGene = (int)Math.floor(species.minGene(index));
         int maxGene = (int)Math.floor(species.maxGene(index));
         state.mutationCounter--;
-        this.setGene(genome[index], randomValueFromClosedInterval(minGene, maxGene, random), state.mutationCounter);// minGene + random.nextLong(maxGene - minGene + 1);
+        genome[index] = new TraceableFloat(randomValueFromClosedInterval(minGene, maxGene, random), state.mutationCounter);// minGene + random.nextLong(maxGene - minGene + 1);
     }
 
     void floatResetMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
@@ -514,7 +505,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         double minGene = species.minGene(index);
         double maxGene = species.maxGene(index);
         state.mutationCounter--;
-        this.setGene(genome[index], (float)(minGene + random.nextFloat(true, true) * (maxGene - minGene)), state.mutationCounter);
+        genome[index] = new TraceableFloat((float)(minGene + random.nextFloat(true, true) * (maxGene - minGene)), state.mutationCounter);
     }
 
     void gaussianMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
@@ -543,7 +534,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         while (true);
 
         state.mutationCounter--;
-        this.mutateGene(genome[index], (float)val, state.mutationCounter);
+        genome[index] = this.mutateGene(genome[index], (float)val, state.mutationCounter);
     }
 
     void polynomialMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
@@ -592,7 +583,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         }
 
         state.mutationCounter--;
-        this.mutateGene(genome[index], (float)y1, state.mutationCounter); // ind[index] = y1;
+        genome[index] = this.mutateGene(genome[index], (float)y1, state.mutationCounter); // ind[index] = y1;
     }
 
     /** This function is broken out to keep it identical to NSGA-II's mutation.c code. eta_m is the distribution
@@ -649,7 +640,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
                 }
 
                 state.mutationCounter--;
-                this.mutateGene(ind[j], (float)y1, state.mutationCounter);
+                ind[j] = this.mutateGene(ind[j], (float)y1, state.mutationCounter);
             }
         }
     }
@@ -686,11 +677,11 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
             {
                 int minGene = (int)Math.floor(s.minGene(x));
                 int maxGene = (int)Math.floor(s.maxGene(x));
-                this.setGene(genome[x], randomValueFromClosedInterval(minGene, maxGene, random), this.traceID);//minGene + random.nextInt(maxGene - minGene + 1);
+                genome[x] = new TraceableFloat(randomValueFromClosedInterval(minGene, maxGene, random), this.traceID);//minGene + random.nextInt(maxGene - minGene + 1);
             }
             else
             {
-                this.setGene(genome[x], (float)(s.minGene(x) + random.nextDouble(true, true) * (s.maxGene(x) - s.minGene(x))), this.traceID);
+                genome[x] = new TraceableFloat((float)(s.minGene(x) + random.nextDouble(true, true) * (s.maxGene(x) - s.minGene(x))), this.traceID);
             }
         }
     }

@@ -192,36 +192,27 @@ public class TraceableBitVectorIndividual extends VectorIndividual {
     }
 
     /**
-     * sets the gene with 100% influence of the traceID
-     * @param gene the gene to be set
-     * @param value the value for the gene
-     * @param traceID the traceID of the gene
-     */
-    private void setGene(TraceableBoolean gene, boolean value, int traceID){
-        List<TraceTuple> traceVector = new ArrayList<TraceTuple>();
-        traceVector.add(new TraceTuple(traceID, 1.0));
-        gene.setValue(value, traceVector);
-    }
-
-    /**
-     * handles the mutation of one gene. Sets both the value and the traceVector
+     * handles the mutation of one gene. Sets both the value and the traceVector.
+     * Disclaimer: unlike the other traceable individuals, this method only works with bit flip mutation. The old and new gene values are always combined 50/50.
      * @param a the gene to be mutated
      * @param new_a_value the new value of gene a
      */
     private void mutateGene(TraceableBoolean a, boolean new_a_value, int mutationCounter){
-        double influence_mut = 0.5; //as there are just two values, the influence of a mutation is always 50%
-        double influence_old = 1 - influence_mut;
+        //as the value is 100% randomly generated, there is no need to compare the old gene values.
+
+        double influence_factor_mut = 0.5; //as there are just two values, the influence of a mutation is always 50%
+        double influence_factor_old = 1 - influence_factor_mut;
 
         List<TraceTuple> a_traceVector = new ArrayList<TraceTuple>();
 
-        a_traceVector.add(new TraceTuple(mutationCounter, influence_mut));
+        a_traceVector.add(new TraceTuple(mutationCounter, influence_factor_mut));
 
         int i = 0; //index for this traceVector
         while(i < a.getTraceVector().size()){ //this iterates over the traceVector of this individual
             int currentAID = a.getTraceVector().get(i).getTraceID();
             int currentAImpact = a.getTraceVector().get(i).getTraceID();
 
-            a_traceVector.add(new TraceTuple(currentAID, influence_old * currentAImpact));
+            a_traceVector.add(new TraceTuple(currentAID, influence_factor_old * currentAImpact));
             i++;
         }
 
@@ -248,7 +239,7 @@ public class TraceableBitVectorIndividual extends VectorIndividual {
                             break;
                         case BitVectorSpecies.C_RESET_MUTATION:
                             state.mutationCounter--;
-                            setGene(genome[x], state.random[thread].nextBoolean(), state.mutationCounter);
+                            genome[x] = new TraceableBoolean(state.random[thread].nextBoolean(), state.mutationCounter);
                             break;
                         default:
                             state.output.fatal("In TracableBitVectorIndividual.defaultMutate, default case occurred when it shouldn't have");
@@ -265,7 +256,7 @@ public class TraceableBitVectorIndividual extends VectorIndividual {
     public void reset(EvolutionState state, int thread)
     {
         for(int x=0;x<genome.length;x++) {
-            setGene(genome[x], state.random[thread].nextBoolean(), this.traceID);
+            genome[x] = new TraceableBoolean(state.random[thread].nextBoolean(), this.traceID);
         }
     }
 

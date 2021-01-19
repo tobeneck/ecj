@@ -309,29 +309,34 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
     }
 
     /**
-     * handles the mutation of one gene. Sets both the value and the traceVector
+     * handles the mutation of one gene.
      * @param a the gene to be mutated
      * @param new_a_value the new value of gene a
+     * @param mutationCounter the current mutation counter used for the traceID
+     * @return the new, mutated gene
      */
-    private void mutateGene(TraceableInteger a, int new_a_value, int mutationCounter){
+    private TraceableInteger mutateGene(TraceableInteger a, int new_a_value, int mutationCounter){
 
-        double influence_mut = Math.abs(new_a_value - a.getValue()) / Math.abs(new_a_value);
-        double influence_old = 1 - influence_mut;
+        if(a.getValue() == new_a_value)//return the original gene if the value was not altered
+            return a;
+
+        double influence_factor_mut = Math.abs(a.getValue() - new_a_value) / (Math.abs(a.getValue()) + Math.abs(a.getValue() - new_a_value));
+        double influence_factor_old = 1 - influence_factor_mut;
 
         List<TraceTuple> a_traceVector = new ArrayList<TraceTuple>();
 
-        a_traceVector.add(new TraceTuple(mutationCounter, influence_mut));
+        a_traceVector.add(new TraceTuple(mutationCounter, influence_factor_mut));
 
         int i = 0; //index for this traceVector
         while(i < a.getTraceVector().size()){ //this iterates over the traceVector of this individual
             int currentAID = a.getTraceVector().get(i).getTraceID();
             int currentAImpact = a.getTraceVector().get(i).getTraceID();
 
-            a_traceVector.add(new TraceTuple(currentAID, influence_old * currentAImpact));
+            a_traceVector.add(new TraceTuple(currentAID, influence_factor_old * currentAImpact));
             i++;
         }
 
-        a = new TraceableInteger(new_a_value, a_traceVector);
+        return new TraceableInteger(new_a_value, a_traceVector);
     }
 
     /** Destructively mutates the individual in some default manner.  The default form
@@ -377,7 +382,7 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
                             }
                             while (state.random[thread].nextBoolean(s.randomWalkProbability(x)));
                             state.mutationCounter--;
-                            this.mutateGene(genome[x], newValue, state.mutationCounter);
+                            genome[x] = this.mutateGene(genome[x], newValue, state.mutationCounter);
                             break;
                         default:
                             state.output.fatal("In IntegerVectorIndividual.defaultMutate, default case occurred when it shouldn't have");
