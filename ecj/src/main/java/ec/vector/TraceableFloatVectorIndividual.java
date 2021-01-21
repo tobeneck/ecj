@@ -700,7 +700,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
     {
         StringBuilder s = new StringBuilder();
         for( int i = 0 ; i < genome.length ; i++ )
-        { if (i > 0) s.append("; "); s.append(genome[i].getValue() + "," + genome[i].getTraceVector().toString()); }
+        { if (i > 0) s.append("; "); s.append(genome[i].toString()); }
         return s.toString();
     }
 
@@ -713,7 +713,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         StringBuilder s = new StringBuilder();
         s.append( Code.encode( genome.length ) );
         for( int i = 0 ; i < genome.length ; i++ ) {
-            s.append(Code.encode(genome[i].getValue() + "," + genome[i].getTraceVector().toString()));
+            s.append(Code.encode(genome[i].toString()));
         }
         return s.toString();
     }
@@ -733,16 +733,8 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         for( int i = 0 ; i < genome.length ; i++ )
         {
             Code.decode( d );
-            String[] data = d.s.split(","); //TODO: differentiate for each traceTuple
-            float value = Float.parseFloat(data[0]);
-            List<TraceTuple> traceVector = new ArrayList<TraceTuple>();
-            String traceDataString = data[1];
-            traceDataString.replace("[", "");
-            traceDataString.replace("]", "");
-            traceDataString.replace(" ", "");
-            //TODO: how do these strings look?
-
-            genome[i] = new TraceableFloat(value, Integer.parseInt(data[1]));
+            genome[i] = new TraceableFloat();
+            genome[i].fromString(d.s);
         }
     }
 

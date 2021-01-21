@@ -273,12 +273,9 @@ public class TraceableBitVectorIndividual extends VectorIndividual {
     public String genotypeToStringForHumans()
     {
         StringBuilder s = new StringBuilder();
-        for( int i = 0 ; i < genome.length ; i++ )
-        {
-            if( genome[i].getValue() )
-                s.append("value: 1 from starting individual: " + genome[i].getTraceVector().toString()); //TODO: is this right?
-            else
-                s.append("value: 0 from starting individual: " + genome[i].getTraceVector().toString()); //TODO: is this right?
+        s.append( Code.encode( genome.length ) );
+        for( int i = 0 ; i < genome.length ; i++ ) {
+            s.append(Code.encode(genome[i].toString()));
         }
         return s.toString();
     }
@@ -292,7 +289,7 @@ public class TraceableBitVectorIndividual extends VectorIndividual {
         StringBuilder s = new StringBuilder();
         s.append( Code.encode( genome.length ) );
         for( int i = 0 ; i < genome.length ; i++ )
-            s.append( Code.encode( genome[i].getValue() +","+ genome[i].getTraceVector().toString()));
+            s.append( Code.encode( genome[i].toString()));
         return s.toString();
     }
 
@@ -311,8 +308,8 @@ public class TraceableBitVectorIndividual extends VectorIndividual {
         for( int i = 0 ; i < genome.length ; i++ )
         {
             Code.decode( d );
-            String[] data = d.s.split(",");
-            genome[i] = new TraceableBoolean(Boolean.parseBoolean(data[0]), Integer.parseInt(data[1]));
+            genome[i] = new TraceableBoolean();
+            genome[i].fromString(d.s);
         }
     }
 

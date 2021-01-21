@@ -442,7 +442,7 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
     }
 
     /**
-     * returns a string: value; traceID
+     * returns a string: [value, traceVector] => [value, [[traceID, impact,]...]
      * @return
      */
     public String genotypeToString()
@@ -470,8 +470,8 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
         for( int i = 0 ; i < genome.length ; i++ )
         {
             Code.decode( d );
-            String[] data = d.s.split(",");
-            genome[i] = new TraceableInteger(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
+            genome[i] = new TraceableInteger();
+            genome[i].fromString(d.s);
         }
     }
 
