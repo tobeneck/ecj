@@ -4,7 +4,7 @@ import ec.EvolutionState;
 import ec.Individual;
 import ec.Statistics;
 import ec.app.TracableProblems.TracableStatistics.ListOperations.DoubleListOperations;
-import ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualListOperations;
+import ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualAndGenomeListOperations;
 import ec.util.Parameter;
 import ec.vector.TracableDataTypes.TraceableString;
 
@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualListOperations.getGenomeLength;
-import static ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualListOperations.getGenotypeString;
+import static ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualAndGenomeListOperations.getGenomeLength;
+import static ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualAndGenomeListOperations.getGenotypeString;
 
 public class TracableVectorStatistics extends Statistics
 {
@@ -292,7 +292,7 @@ public class TracableVectorStatistics extends Statistics
         if(state.generation == 0){
             // print out the population
             state.population.subpops.get(0).printSubpopulation(state,startingPopulationLog);
-            startingEndingFitness = "" + IndividualListOperations.getBest(inds) + "," + IndividualListOperations.getMean(inds) +","+IndividualListOperations.getMedian(inds);
+            startingEndingFitness = "" + IndividualAndGenomeListOperations.getBest(inds) + "," + IndividualAndGenomeListOperations.getMean(inds) +","+ IndividualAndGenomeListOperations.getMedian(inds);
         }
 
 
@@ -341,7 +341,7 @@ public class TracableVectorStatistics extends Statistics
         List<Double> entropyImpact = new ArrayList<Double>();
         List<Double> fitnessEntropyImpact = new ArrayList<Double>();
         for(int i = 0; i < inds.size(); i++) {
-            double[] impact = IndividualListOperations.calculateImpact(i, inds);
+            double[] impact = IndividualAndGenomeListOperations.calculateImpact(i, inds, genomes);
             countingImpact.add(impact[0]);
             fitnessImpact.add(impact[1]);
             entropyImpact.add(impact[2]);
@@ -350,7 +350,7 @@ public class TracableVectorStatistics extends Statistics
 
         //go over all mutations again for mutation, seperate to build a sum
         for(int i = -1; i >= state.mutationCounter; i--) {
-            double[] impact = IndividualListOperations.calculateImpact(i, inds);
+            double[] impact = IndividualAndGenomeListOperations.calculateImpact(i, inds, genomes);
             countingImpact.add(impact[0]);
             fitnessImpact.add(impact[1]);
             entropyImpact.add(impact[2]);
@@ -399,7 +399,7 @@ public class TracableVectorStatistics extends Statistics
         normalizedFitnessEntropyImpactString += state.generation +", " + DoubleListOperations.listToString(normalizedFitnessEntropyImpactHead) + ", " + DoubleListOperations.getSum(normalizedFitnessEntropyImpactTail) + ", " + DoubleListOperations.listToString(normalizedFitnessEntropyImpactTail) + "\n";
 
         //print the entropyFile
-        entropyString += state.generation + ", " ;//+ IndividualListOperations.calculateEntropy(inds) + "\n"; //TODO: also fix this
+        entropyString += state.generation + ", " + IndividualAndGenomeListOperations.getEntropyString(genomes) + "\n";
     }
 
     @Override
@@ -432,12 +432,6 @@ public class TracableVectorStatistics extends Statistics
         normalizedFitnessImpactString = headder + "\n" + normalizedFitnessImpactString;
         normalizedEntropyImpactString = headder + "\n" + normalizedEntropyImpactString;
         normalizedFitnessEntropyImpactString = headder + "\n" + normalizedFitnessEntropyImpactString;
-
-//        //traceID and genome headder //TODO: delete?
-//        headder = "generation, indID";
-//        for(int i = 1; i <= genomeLength; i++)
-//            headder += ", traceID_" + i;
-//        traceIDsString = headder + "\n" + traceIDsString;
 
         //traceID and genome headder
         headder = "generation, indID";

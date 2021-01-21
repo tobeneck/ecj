@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class IndividualListOperations {
+public class IndividualAndGenomeListOperations {
 
     public static double getBest(ArrayList<Individual> inds){
         double highestFitness = -Double.MAX_VALUE;
@@ -83,50 +83,51 @@ public class IndividualListOperations {
 
     /**
      * Calculates the EntropyString, starting with the overall entropy of the generation following the entropy of every genome
+     * @param genomes the genomes of the current generation as a TraceableString
+     * @return the entropy string of the current generation as "overall entropy, entropy sum, entropy gene 1, entropy gene 2, ..."
      */
-    public static String calculateEntropy(ArrayList<Individual> inds){
+    public static String getEntropyString(ArrayList<ArrayList<TraceableString>> genomes){
 
         String entropyOfTheGeneration = "";
 
-        //build a list for each genome, also add to the overall list
-        List<String> overallEntropy = new ArrayList<String>();
-
-        int genomeCount = getGenomeLength(inds.get(0));
+        int genomeCount = genomes.get(0).size();//getGenomeLength(inds.get(0));
         double entropySum = 0.0;
 
-        for(int i = 0; i < genomeCount; i++) { //iterate over the genomes first for performance reasons
-            List<String> genomeEntropy = new ArrayList<String>();
-            String entropyString = "";
-            for(int j = 0; j < inds.size(); j++){
-                String[] genotypeString = getGenotypeString(inds.get(j));
-                String traceID = genotypeString[i].split(",")[1];
-                genomeEntropy.add(traceID);
-                overallEntropy.add(traceID);
-                entropyString += traceID;
-            }
-            entropyOfTheGeneration += ", " + StringListOperations.getShannonEntropy(genomeEntropy);//calculateShannonEntropy(genomeEntropy);
-            entropySum += StringListOperations.getShannonEntropy(genomeEntropy);
+        for(int i = 0; i < genomeCount; i++){//iterate over all genomes (not individuals) //TODO: genomes.cout or genomeSize
+            ArrayList<Integer> genomesToCheck = new ArrayList<Integer>();
+            genomesToCheck.add(i);
+            double currentEntropy = calculateEntropyOnGenomes(genomesToCheck, genomes);//TraceVectorListOperations.getShannonEntropy(traceVectors);
+            entropyOfTheGeneration += ", " + currentEntropy;//calculateShannonEntropy(genomeEntropy);
+            entropySum += currentEntropy;
         }
 
-        return StringListOperations.getShannonEntropy(overallEntropy) + ", " + entropySum + entropyOfTheGeneration;
+        ArrayList<Integer> genomesToCheck = new ArrayList<Integer>();
+        for(int i = 0; i < genomeCount; i++) {//for to compute the overall entropy
+            genomesToCheck.add(i);
+        }
+        return calculateEntropyOnGenomes(genomesToCheck, genomes) + ", " + entropySum + entropyOfTheGeneration;
     }
 
 
+    //TODO: move to genomesListOperations
     /**
      * Returns the Entropy of a genome Column
      */
-    public static double calculateEntropyOnGenome(int genomeColumn, ArrayList<Individual> inds){ //NOTE: maybe replace by inserting a EntropyString into calculateImpact for performance reasons
-        if(genomeColumn > getGenomeLength(inds.get(0)))//TODO: is this right?
-            throw new IndexOutOfBoundsException();
+    private static double calculateEntropyOnGenomes(ArrayList<Integer> genomeColumns, ArrayList<ArrayList<TraceableString>> genomes){
 
-        List<String> stringList = new ArrayList<String>();
-        for(int i = 0; i < inds.size(); i++){
-            String[] genotypeString = getGenotypeString(inds.get(i));
-            String traceID = genotypeString[genomeColumn].split(",")[1];
-            stringList.add(traceID);
+        ArrayList<ArrayList<TraceTuple>> traceVectors = new ArrayList<ArrayList<TraceTuple>>(); //the traceVectors in genomeColumn
+        for(int i = 0; i < genomeColumns.size(); i++) {
+            int currentGenomeColumn = genomeColumns.get(i);
+            if(currentGenomeColumn > genomes.get(0).size()) //NOTE: only works with fixed genome sizes
+                throw new IndexOutOfBoundsException();
+            for (int j = 0; j < genomes.size(); j++) {
+                ArrayList<TraceableString> currentGenome = genomes.get(j);
+                ArrayList<TraceTuple> currentTraceVector = currentGenome.get(currentGenomeColumn).getTraceVector();
+                traceVectors.add(currentTraceVector);
+            }
         }
 
-        return StringListOperations.getShannonEntropy(stringList);
+        return TraceVectorListOperations.getShannonEntropy(traceVectors);
     }
 
     /**
@@ -146,7 +147,6 @@ public class IndividualListOperations {
         double worstFitness = getMinFitness(inds);
 
         for(int i = 0; i < inds.size(); i++){//iterate over the individuals
-            String[] genotypeString = getGenotypeString(inds.get(i)); //TODO: input the genomes as a variable
             int popSize = inds.size();
             int genomeLength = getGenomeLength(inds.get(i));
             ArrayList<TraceableString> currentGenome = genomes.get(i);
@@ -157,7 +157,9 @@ public class IndividualListOperations {
                     int traceID = currentTraceVector.get(k).getTraceID();
                     double influence = currentTraceVector.get(k).getImpact(); //the influence of the traceID in the gene
                     if(traceID == currentTraceID){
-                        double entropyFactor = 1.0;//calculateEntropyOnGenome(j, inds); //TODO: this needs to be changed
+                        ArrayList<Integer> genomesToCheck = new ArrayList<>();
+                        genomesToCheck.add(j);
+                        double entropyFactor = calculateEntropyOnGenomes(genomesToCheck, genomes);
                         double diffToWorst = inds.get(i).fitness.fitness() - worstFitness;
 
                         countingImpact += influence/(popSize * genomeLength);

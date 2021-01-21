@@ -27,12 +27,12 @@ public class TraceableString {
     }
 
     private String _value;
-    private List<TraceTuple> _traceVector;
+    private ArrayList<TraceTuple> _traceVector;
 
     public String getValue(){ return _value; }
-    public List<TraceTuple> getTraceVector(){ return _traceVector; }
+    public ArrayList<TraceTuple> getTraceVector(){ return _traceVector; }
 
-    public void setValue(String value, List<TraceTuple> traceVector){ this._value = value; this._traceVector = traceVector; }
+    public void setValue(String value, ArrayList<TraceTuple> traceVector){ this._value = value; this._traceVector = traceVector; }
 
     public String toString(){
         String outString = "";

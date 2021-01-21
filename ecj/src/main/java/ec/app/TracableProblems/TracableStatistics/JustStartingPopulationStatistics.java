@@ -3,15 +3,12 @@ package ec.app.TracableProblems.TracableStatistics;
 import ec.EvolutionState;
 import ec.Individual;
 import ec.Statistics;
-import ec.app.TracableProblems.TracableStatistics.ListOperations.DoubleListOperations;
-import ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualListOperations;
+import ec.app.TracableProblems.TracableStatistics.ListOperations.IndividualAndGenomeListOperations;
 import ec.util.Parameter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class JustStartingPopulationStatistics extends Statistics {
     // The parameter string and log number of the file for our readable population
@@ -70,13 +67,13 @@ public class JustStartingPopulationStatistics extends Statistics {
         if(state.generation == 0){
             // print out the population
             state.population.subpops.get(0).printSubpopulation(state,startingPopulationLog);
-            startingEndingFitness = "" + IndividualListOperations.getBest(inds) + "," + IndividualListOperations.getMean(inds) +","+IndividualListOperations.getMedian(inds);
+            startingEndingFitness = "" + IndividualAndGenomeListOperations.getBest(inds) + "," + IndividualAndGenomeListOperations.getMean(inds) +","+ IndividualAndGenomeListOperations.getMedian(inds);
         }
     }
 
     @Override
     public void finalStatistics(EvolutionState state, int result) {
-        int genomeLength = IndividualListOperations.getGenomeLength(state.population.subpops.get(0).individuals.get(0));
+        int genomeLength = IndividualAndGenomeListOperations.getGenomeLength(state.population.subpops.get(0).individuals.get(0));
         String headder = "BestInd,Mean,Median";
 
         startingEndingFitness = headder +"\n" + startingEndingFitness;
