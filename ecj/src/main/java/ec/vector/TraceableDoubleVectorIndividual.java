@@ -7,8 +7,7 @@ import ec.util.Code;
 import ec.util.DecodeReturn;
 import ec.util.Parameter;
 import ec.vector.TracableDataTypes.TraceTuple;
-import ec.vector.TracableDataTypes.TraceableFloat;
-import ec.vector.TracableDataTypes.TraceableInteger;
+import ec.vector.TracableDataTypes.TraceableDouble;
 
 import java.util.ArrayList;
 import java.io.DataInput;
@@ -18,27 +17,31 @@ import java.io.LineNumberReader;
 import java.util.Arrays;
 import java.util.List;
 
-public class TraceableFloatVectorIndividual extends VectorIndividual {
-    private static final long serialVersionUID = 1;
-    public static final double MAXIMUM_SHORT_IN_FLOAT = 1.6777216E7f;
+public class TraceableDoubleVectorIndividual extends VectorIndividual {
 
-    public static final String P_TRACEABLEFLOATVECTORINDIVIDUAL = "trace-float-vect-ind";
-    public TraceableFloat[] genome;
+    private static final long serialVersionUID = 1;
+
+    public static final String P_DOUBLEVECTORINDIVIDUAL = "double-vect-ind";
+
+    public static final double MAXIMUM_INTEGER_IN_DOUBLE = 9.007199254740992E15;
+
+    public static final String P_TRACEABLEDOUBLEVECTORINDIVIDUAL = "trace-double-vect-ind";
+    public TraceableDouble[] genome;
 
     public Parameter defaultBase()
     {
-        return VectorDefaults.base().push(P_TRACEABLEFLOATVECTORINDIVIDUAL);
+        return VectorDefaults.base().push(P_TRACEABLEDOUBLEVECTORINDIVIDUAL);
     }
 
     public Object clone()
     {
-        TraceableFloatVectorIndividual myobj = (TraceableFloatVectorIndividual) (super.clone());
+        TraceableDoubleVectorIndividual myobj = (TraceableDoubleVectorIndividual) (super.clone());
 
         // must clone the genome
         //NOTE: needs to be this fancy to avoid reference errors
-        myobj.genome = new TraceableFloat[genome.length];
+        myobj.genome = new TraceableDouble[genome.length];
         for(int i = 0; i < genome.length; i++){
-            myobj.genome[i] = new TraceableFloat(genome[i].getValue(), genome[i].getTraceVector());
+            myobj.genome[i] = new TraceableDouble(genome[i].getValue(), genome[i].getTraceVector());
         }
 
         return myobj;
@@ -49,68 +52,68 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         super.setup(state,base);  // actually unnecessary (Individual.setup() is empty)
 
         FloatVectorSpecies s = (FloatVectorSpecies)species;  // where my default info is stored
-        genome = new TraceableFloat[s.genomeSize];
+        genome = new TraceableDouble[s.genomeSize];
         for (int i = 0; i < s.genomeSize; i++) {
-            genome[i] = new TraceableFloat();
+            genome[i] = new TraceableDouble();
         }
     }
 
     //TODO: does this inline stuff work?
-    public void simulatedBinaryCrossover(MersenneTwisterFast random, TraceableFloatVectorIndividual other, float eta_c)
-        {
+    public void simulatedBinaryCrossover(MersenneTwisterFast random, TraceableDoubleVectorIndividual other, double eta_c)
+    {
         final double EPS = FloatVectorSpecies.SIMULATED_BINARY_CROSSOVER_EPS;
         FloatVectorSpecies s = (FloatVectorSpecies) species;
-        TraceableFloat[] parent1 = genome;
-        TraceableFloat[] parent2 = other.genome;
+        TraceableDouble[] parent1 = genome;
+        TraceableDouble[] parent2 = other.genome;
         //        double[] min_realvar = s.minGenes;
         //        double[] max_realvar = s.maxGenes;
-                
-                
+
+
         double y1, y2, yl, yu;
         double c1, c2;
         double alpha, beta, betaq;
         double rand;
-                
+
         for(int i = 0; i < parent1.length; i++)
-            {
+        {
             if (random.nextBoolean())  // 0.5f
-                {
+            {
                 if (Math.abs(parent1[i].getValue() - parent2[i].getValue()) > EPS)
-                    {
+                {
                     if (parent1[i].getValue() < parent2[i].getValue())
-                        {
+                    {
                         y1 = parent1[i].getValue();
                         y2 = parent2[i].getValue();
-                        }
+                    }
                     else
-                        {
+                    {
                         y1 = parent2[i].getValue();
                         y2 = parent1[i].getValue();
-                        }
+                    }
                     yl = s.minGene(i); //min_realvar[i];
-                    yu = s.maxGene(i); //max_realvar[i];    
-                    rand = random.nextFloat();
+                    yu = s.maxGene(i); //max_realvar[i];
+                    rand = random.nextDouble();
                     beta = 1.0 + (2.0*(y1-yl)/(y2-y1));
                     alpha = 2.0 - Math.pow(beta,-(eta_c+1.0));
                     if (rand <= (1.0/alpha))
-                        {
+                    {
                         betaq = Math.pow((rand*alpha),(1.0/(eta_c+1.0)));
-                        }
+                    }
                     else
-                        {
+                    {
                         betaq = Math.pow((1.0/(2.0 - rand*alpha)),(1.0/(eta_c+1.0)));
-                        }
+                    }
                     c1 = 0.5*((y1+y2)-betaq*(y2-y1));
                     beta = 1.0 + (2.0*(yu-y2)/(y2-y1));
                     alpha = 2.0 - Math.pow(beta,-(eta_c+1.0));
                     if (rand <= (1.0/alpha))
-                        {
+                    {
                         betaq = Math.pow((rand*alpha),(1.0/(eta_c+1.0)));
-                        }
+                    }
                     else
-                        {
+                    {
                         betaq = Math.pow((1.0/(2.0 - rand*alpha)),(1.0/(eta_c+1.0)));
-                        }
+                    }
                     c2 = 0.5*((y1+y2)+betaq*(y2-y1));
                     if (c1<yl)
                         c1=yl;
@@ -121,37 +124,37 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
                     if (c2>yu)
                         c2=yu;
                     if (random.nextBoolean())
-                        {
-                            parent1[i] = this.recombineGenes(parent1[i], parent2[i], (float) c2);
-                            parent2[i] = this.recombineGenes(parent2[i], parent1[i], (float) c1);
-                        }
-                    else
-                        {
-                            parent1[i] = this.recombineGenes(parent1[i], parent2[i], (float) c2);
-                            parent2[i] = this.recombineGenes(parent2[i], parent1[i], (float) c1);
-                        }
-                    }
-                else
                     {
-                    // do nothing
+                        parent1[i] = this.recombineGenes(parent1[i], parent2[i], (double) c2);
+                        parent2[i] = this.recombineGenes(parent2[i], parent1[i], (double) c1);
+                    }
+                    else
+                    {
+                        parent1[i] = this.recombineGenes(parent1[i], parent2[i], (double) c2);
+                        parent2[i] = this.recombineGenes(parent2[i], parent1[i], (double) c1);
                     }
                 }
-            else
+                else
                 {
-                // do nothing
+                    // do nothing
                 }
             }
+            else
+            {
+                // do nothing
+            }
         }
+    }
 
 
     /**
-     * combines two TraceableFloat genes. Returns the new gene value.
+     * combines two TraceableDouble genes. Returns the new gene value.
      * @param a reference to the first gene
      * @param b reference to the second gene
      * @param new_a_value the new gene value of a
      * @return the new, combined gene
      */
-    protected static TraceableFloat recombineGenes(TraceableFloat a, TraceableFloat b, float new_a_value){
+    protected static TraceableDouble recombineGenes(TraceableDouble a, TraceableDouble b, double new_a_value){
 
         // of aVal = bVal = newVal, both genes should have 50% impact
         double influence_factor_a = 0.5;
@@ -212,14 +215,14 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
             }
         }
 
-        return new TraceableFloat(new_a_value, new_traceVector);
+        return new TraceableDouble(new_a_value, new_traceVector);
     }
 
     public void defaultCrossover(EvolutionState state, int thread, VectorIndividual ind)
     {
         FloatVectorSpecies s = (FloatVectorSpecies)species;  // where my default info is stored
-        TraceableFloatVectorIndividual i = (TraceableFloatVectorIndividual) ind;
-        TraceableFloat tmp;
+        TraceableDoubleVectorIndividual i = (TraceableDoubleVectorIndividual) ind;
+        TraceableDouble tmp;
         int point;
 
         int len = Math.min(genome.length, i.genome.length);
@@ -279,7 +282,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
                     genome[x] = tmp;
                 }
             }
-                break;
+            break;
             case VectorSpecies.C_TWO_POINT_NO_NOP:
                 point = state.random[thread].nextInt((len / s.chunksize));
                 int point0 = 0;
@@ -305,8 +308,8 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
                 break;
             case VectorSpecies.C_LINE_RECOMB:
             {
-                double alpha = state.random[thread].nextFloat(true, true) * (1 + 2*s.lineDistance) - s.lineDistance;
-                double beta = state.random[thread].nextFloat(true, true) * (1 + 2*s.lineDistance) - s.lineDistance;
+                double alpha = state.random[thread].nextDouble(true, true) * (1 + 2*s.lineDistance) - s.lineDistance;
+                double beta = state.random[thread].nextDouble(true, true) * (1 + 2*s.lineDistance) - s.lineDistance;
                 double t,u,min,max;
                 for (int x = 0; x < len; x++)
                 {
@@ -329,8 +332,8 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
                 {
                     do
                     {
-                        double alpha = state.random[thread].nextFloat(true, true) * (1 + 2*s.lineDistance) - s.lineDistance;
-                        double beta = state.random[thread].nextFloat(true, true) * (1 + 2*s.lineDistance) - s.lineDistance;
+                        double alpha = state.random[thread].nextDouble(true, true) * (1 + 2*s.lineDistance) - s.lineDistance;
+                        double beta = state.random[thread].nextDouble(true, true) * (1 + 2*s.lineDistance) - s.lineDistance;
                         min = s.minGene(x);
                         max = s.maxGene(x);
                         t = alpha * genome[x].getValue() + (1 - alpha) * i.genome[x].getValue();
@@ -345,7 +348,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
                 simulatedBinaryCrossover(state.random[thread], i, s.crossoverDistributionIndex);
                 break;
             default:
-                state.output.fatal("In valid crossover type in TraceableFloatVectorIndividual.");
+                state.output.fatal("In valid crossover type in TraceableDoubleVectorIndividual.");
                 break;
         }
     }
@@ -375,7 +378,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
             sum += ((boolean[])(pieces[x])).length;
 
         int runningsum = 0;
-        TraceableFloat[] newgenome = new TraceableFloat[sum];
+        TraceableDouble[] newgenome = new TraceableDouble[sum];
         for(int x=0;x<pieces.length;x++)
         {
             System.arraycopy(pieces[x], 0, newgenome, runningsum, ((boolean[])(pieces[x])).length);
@@ -392,7 +395,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
      * @param mutationCounter the current mutation counter used for the traceID
      * @return the new, mutated gene
      */
-    private TraceableFloat mutateGene(TraceableFloat a, float new_a_value, int mutationCounter){
+    private TraceableDouble mutateGene(TraceableDouble a, double new_a_value, int mutationCounter){
 
         if(a.getValue() == new_a_value)//return the original gene if the value was not altered
             return a;
@@ -413,7 +416,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
             i++;
         }
 
-        return new TraceableFloat(new_a_value, a_traceVector);
+        return new TraceableDouble(new_a_value, a_traceVector);
     }
 
     /**
@@ -433,7 +436,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         for(int x = 0; x < genome.length; x++)
             if (rng.nextBoolean(s.mutationProbability(x)))
             {
-                float old = genome[x].getValue();
+                double old = genome[x].getValue();
                 for(int retries = 0; retries < s.duplicateRetries(x) + 1; retries++)
                 {
                     switch(s.mutationType(x))
@@ -454,7 +457,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
                             integerRandomWalkMutation(state, rng, s, x);
                             break;
                         default:
-                            state.output.fatal("In FloatVectorIndividual.defaultMutate, default case occurred when it shouldn't have");
+                            state.output.fatal("In TraceableDoubleVectorIndividual.defaultMutate, default case occurred when it shouldn't have");
                             break;
                     }
                     if (genome[x].getValue() != old) break;
@@ -470,10 +473,10 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         if (!species.mutationIsBounded(index))
         {
             // okay, technically these are still bounds, but we can't go beyond this without weird things happening
-            max = MAXIMUM_SHORT_IN_FLOAT;
+            max = MAXIMUM_INTEGER_IN_DOUBLE;
             min = -(max);
         }
-        float newValue = (float)Math.floor(genome[index].getValue());
+        double newValue = (double)Math.floor(genome[index].getValue());
         do
         {
             int n = (int)(random.nextBoolean() ? 1 : -1);
@@ -497,7 +500,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         int minGene = (int)Math.floor(species.minGene(index));
         int maxGene = (int)Math.floor(species.maxGene(index));
         state.mutationCounter--;
-        genome[index] = new TraceableFloat(randomValueFromClosedInterval(minGene, maxGene, random), state.mutationCounter);// minGene + random.nextLong(maxGene - minGene + 1);
+        genome[index] = new TraceableDouble(randomValueFromClosedInterval(minGene, maxGene, random), state.mutationCounter);// minGene + random.nextLong(maxGene - minGene + 1);
     }
 
     void floatResetMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
@@ -505,7 +508,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         double minGene = species.minGene(index);
         double maxGene = species.maxGene(index);
         state.mutationCounter--;
-        genome[index] = new TraceableFloat((float)(minGene + random.nextFloat(true, true) * (maxGene - minGene)), state.mutationCounter);
+        genome[index] = new TraceableDouble((double)(minGene + random.nextDouble(true, true) * (maxGene - minGene)), state.mutationCounter);
     }
 
     void gaussianMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
@@ -524,7 +527,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
             {
                 if (givingUpAllowed && (outOfBoundsLeftOverTries == 0))
                 {
-                    val = min + random.nextFloat() * (max - min);
+                    val = min + random.nextDouble() * (max - min);
                     species.outOfRangeRetryLimitReached(state);// it better get inlined
                     break;
                 }
@@ -534,7 +537,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         while (true);
 
         state.mutationCounter--;
-        genome[index] = this.mutateGene(genome[index], (float)val, state.mutationCounter);
+        genome[index] = this.mutateGene(genome[index], (double)val, state.mutationCounter);
     }
 
     void polynomialMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
@@ -556,7 +559,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         int tries = 0;
         for(tries = 0; tries < totalTries || totalTries == 0; tries++)  // keep trying until totalTries is reached if it's not zero.  If it's zero, go on forever.
         {
-            rnd = random.nextFloat();
+            rnd = random.nextDouble();
             mut_pow = 1.0/(eta_m+1.0);
             if (rnd <= 0.5)
             {
@@ -578,20 +581,21 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         if (totalTries != 0 && tries == totalTries)
         {
             // just randomize
-            y1 = (float)(species.minGene(index) + random.nextFloat(true, true) * (species.maxGene(index) - species.minGene(index)));  //(float)(min_realvar[index] + random.nextFloat() * (max_realvar[index] - min_realvar[index]));
+            y1 = (double)(species.minGene(index) + random.nextDouble(true, true) * (species.maxGene(index) - species.minGene(index)));  //(double)(min_realvar[index] + random.nextDouble
+            // () * (max_realvar[index] - min_realvar[index]));
             species.outOfRangeRetryLimitReached(state);// it better get inlined
         }
 
         state.mutationCounter--;
-        genome[index] = this.mutateGene(genome[index], (float)y1, state.mutationCounter); // ind[index] = y1;
+        genome[index] = this.mutateGene(genome[index], (double)y1, state.mutationCounter); // ind[index] = y1;
     }
 
     /** This function is broken out to keep it identical to NSGA-II's mutation.c code. eta_m is the distribution
      index.  */
-    public void polynomialMutate(EvolutionState state, MersenneTwisterFast random, float eta_m, boolean alternativePolynomialVersion, boolean mutationIsBounded)
+    public void polynomialMutate(EvolutionState state, MersenneTwisterFast random, double eta_m, boolean alternativePolynomialVersion, boolean mutationIsBounded)
     {
         FloatVectorSpecies s = (FloatVectorSpecies) species;
-        TraceableFloat[] ind = genome;
+        TraceableDouble[] ind = genome;
         //        double[] min_realvar = s.minGenes;
         //        double[] max_realvar = s.maxGenes;
 
@@ -612,7 +616,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
                 int tries = 0;
                 for(tries = 0; tries < totalTries || totalTries == 0; tries++)  // keep trying until totalTries is reached if it's not zero.  If it's zero, go on forever.
                 {
-                    rnd = (random.nextFloat());
+                    rnd = (random.nextDouble());
                     mut_pow = 1.0/(eta_m+1.0);
                     if (rnd <= 0.5)
                     {
@@ -634,13 +638,13 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
                 if (totalTries != 0 && tries == totalTries)
                 {
                     // just randomize
-                    // y1 = (float)(min_realvar[j] + random.nextFloat(true, true) * (max_realvar[j] - min_realvar[j]));
-                    y1 = (float)(s.minGene(j) + random.nextFloat(true, true) * (s.maxGene(j) - s.minGene(j)));
+                    // y1 = (double)(min_realvar[j] + random.nextDouble(true, true) * (max_realvar[j] - min_realvar[j]));
+                    y1 = (double)(s.minGene(j) + random.nextDouble(true, true) * (s.maxGene(j) - s.minGene(j)));
                     s.outOfRangeRetryLimitReached(state);// it better get inlined
                 }
 
                 state.mutationCounter--;
-                ind[j] = this.mutateGene(ind[j], (float)y1, state.mutationCounter);
+                ind[j] = this.mutateGene(ind[j], (double)y1, state.mutationCounter);
             }
         }
     }
@@ -662,7 +666,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
     }
 
     /**
-     * Initializes the individual by randomly choosing floats uniformly from
+     * Initializes the individual by randomly choosing doubles uniformly from
      * mingene to maxgene.
      */
     public void reset(EvolutionState state, int thread)
@@ -677,11 +681,11 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
             {
                 int minGene = (int)Math.floor(s.minGene(x));
                 int maxGene = (int)Math.floor(s.maxGene(x));
-                genome[x] = new TraceableFloat(randomValueFromClosedInterval(minGene, maxGene, random), this.traceID);//minGene + random.nextInt(maxGene - minGene + 1);
+                genome[x] = new TraceableDouble(randomValueFromClosedInterval(minGene, maxGene, random), this.traceID);//minGene + random.nextInt(maxGene - minGene + 1);
             }
             else
             {
-                genome[x] = new TraceableFloat((float)(s.minGene(x) + random.nextDouble(true, true) * (s.maxGene(x) - s.minGene(x))), this.traceID);
+                genome[x] = new TraceableDouble((double)(s.minGene(x) + random.nextDouble(true, true) * (s.maxGene(x) - s.minGene(x))), this.traceID);
             }
         }
     }
@@ -727,13 +731,13 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
 
         int lll = (int)(d.l);
 
-        genome = new TraceableFloat[ lll ];
+        genome = new TraceableDouble[ lll ];
 
         // read in the genes
         for( int i = 0 ; i < genome.length ; i++ )
         {
             Code.decode( d );
-            genome[i] = new TraceableFloat();
+            genome[i] = new TraceableDouble();
             genome[i].fromString(d.s);
         }
     }
@@ -743,7 +747,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
         System.out.println("equals called"); //DEBUGG: check if called, delete if i know when
         if (ind==null) return false;
         if (!(this.getClass().equals(ind.getClass()))) return false; // SimpleRuleIndividuals are special.
-        TraceableFloatVectorIndividual i = (TraceableFloatVectorIndividual)ind;
+        TraceableDoubleVectorIndividual i = (TraceableDoubleVectorIndividual)ind;
         if( genome.length != i.genome.length )
             return false;
         for( int j = 0 ; j < genome.length ; j++ )
@@ -755,7 +759,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
     public Object getGenome()
     { return genome; }
     public void setGenome(Object gen)
-    { genome = (TraceableFloat[]) gen; }
+    { genome = (TraceableDouble[]) gen; }
     public int genomeLength()
     { return genome.length; }
 
@@ -783,7 +787,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
 
     public void setGenomeLength(int len)
     {
-        TraceableFloat[] newGenome = new TraceableFloat[len];
+        TraceableDouble[] newGenome = new TraceableDouble[len];
         System.arraycopy(genome, 0, newGenome, 0,
                 genome.length < newGenome.length ? genome.length : newGenome.length);
         genome = newGenome;
@@ -804,7 +808,7 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
             /*
             int len = dataInput.readInt();
             if (genome==null || genome.length != len)
-                genome = new TraceableFloat[len];
+                genome = new TraceableDouble[len];
             for(int x=0;x<genome.length;x++)
                 genome[x] = dataInput.readBoolean();
              */
@@ -813,13 +817,13 @@ public class TraceableFloatVectorIndividual extends VectorIndividual {
 
     public double distanceTo(Individual otherInd)
     {
-        TraceableFloatVectorIndividual other = (TraceableFloatVectorIndividual) otherInd;
+        TraceableDoubleVectorIndividual other = (TraceableDoubleVectorIndividual) otherInd;
 
-        TraceableFloat[] otherGenome = other.genome;
+        TraceableDouble[] otherGenome = other.genome;
         double sumSquaredDistance =0.0;
         for(int i=0; i < other.genomeLength(); i++)
         {
-            float dist = this.genome[i].getValue() - (long)otherGenome[i].getValue();
+            double dist = this.genome[i].getValue() - (long)otherGenome[i].getValue();
             sumSquaredDistance += dist*dist;
         }
         return StrictMath.sqrt(sumSquaredDistance);

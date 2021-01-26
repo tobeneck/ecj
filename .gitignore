@@ -27,5 +27,5 @@ out/*
 *.iml
 
 #ignore statistics out
-ejc/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TraceableVectorStatisticsOut/*
-ejc/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/JustStartingPopulationsOut/*
+ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/*
+ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/JustStartingPopulationsOut/*

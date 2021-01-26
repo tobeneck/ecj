@@ -340,7 +340,7 @@ public class FloatVectorSpecies extends VectorSpecies
         {
         if (i_prototype instanceof FloatVectorIndividual || i_prototype instanceof TraceableFloatVectorIndividual)
             return (geneVal <= Float.MAX_VALUE && geneVal >= -Float.MAX_VALUE);
-        else if (i_prototype instanceof DoubleVectorIndividual)
+        else if (i_prototype instanceof DoubleVectorIndividual || i_prototype instanceof TraceableDoubleVectorIndividual)
             return true; // geneVal is valid for all double
         else
             return false; // dunno what the individual is...
