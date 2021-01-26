@@ -27,5 +27,15 @@ out/*
 *.iml
 
 
-ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/*
-ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/JustStartingPopulationsOut/*
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/*.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/countingImpactFile.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/fitnessFile.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/traceIDsFile.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/startingEndingFitness.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/normalizedFitnessImpactFile.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/genomeFile.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/fitnessImpactFile.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/fitnessEntropyImpactFile.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/entropyImpactFile.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/entropyFile.csv
+/ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/normalizedEntropyImpactFile.csv
