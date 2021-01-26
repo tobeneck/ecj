@@ -13,9 +13,10 @@ import ec.Problem;
 import ec.simple.SimpleFitness;
 import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
-import ec.vector.DoubleVectorIndividual;
+import ec.vector.TracableDataTypes.TraceableDouble;
+import ec.vector.TraceableDoubleVectorIndividual;
 
-public class OddRosenbrock extends Problem implements SimpleProblemForm //TODO: rewrite for traceableDouble
+public class RosenbrockFunction extends Problem implements SimpleProblemForm //TODO: rewrite for traceableDouble
     {
     public void setup(final EvolutionState state, final Parameter base) { }
 
@@ -24,18 +25,18 @@ public class OddRosenbrock extends Problem implements SimpleProblemForm //TODO: 
         final int subpopulation,
         final int threadnum)
         {
-        if( !( ind instanceof DoubleVectorIndividual ) )
-            state.output.fatal( "The individuals for this problem should be DoubleVectorIndividuals." );
+        if( !( ind instanceof TraceableDoubleVectorIndividual ) )
+            state.output.fatal( "The individuals for this problem should be TraceableDoubleVectorIndividuals." );
 
-        double[] genome = ((DoubleVectorIndividual)ind).genome;
+        TraceableDouble[] genome = ((TraceableDoubleVectorIndividual)ind).genome;
         int len = genome.length;
         double value = 0;
 
         // Compute the Rosenbrock function for our genome
         for( int i = 1 ; i < len ; i++ )
-            value += 100*(genome[i-1]*genome[i-1]-genome[i])*
-                (genome[i-1]*genome[i-1]-genome[i]) +
-                (1-genome[i-1])*(1-genome[i-1]);
+            value += 100*(genome[i-1].getValue()*genome[i-1].getValue()-genome[i].getValue())*
+                (genome[i-1].getValue()*genome[i-1].getValue()-genome[i].getValue()) +
+                (1-genome[i-1].getValue())*(1-genome[i-1].getValue());
 
         // Rosenbrock is a minimizing function which does not drop below 0. 
         // But SimpleFitness requires a maximizing function -- where 0 is worst

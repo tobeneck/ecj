@@ -26,6 +26,6 @@ ecj/src/main/resources/ec/app/mona/1-MonaLisaOut.png
 out/*
 *.iml
 
-#ignore statistics out
+
 ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/TracableVectorStatisticsOut/*
 ecj/src/main/resources/ec/app/TraceableProblems/TraceableVectorStatistics/JustStartingPopulationsOut/*
