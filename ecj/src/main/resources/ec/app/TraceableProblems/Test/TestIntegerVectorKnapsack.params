@@ -1,0 +1,109 @@
+
+#parameters for the Evolve Object:
+verbosity	= 0
+flush		= true
+store		= true
+
+breedthreads	= 1
+evalthreads	    = 1
+seed.0		    = 710207731
+
+state		    = ec.simple.SimpleEvolutionState
+
+
+
+#the parameters for the SimpleEvolutionState Object                                                             #CHANGES: breeder
+pop		    = ec.Population
+init		= ec.simple.SimpleInitializer
+finish		= ec.simple.SimpleFinisher
+
+es.mu.0    = 20
+es.lambda.0 = 140
+breed		= ec.es.CorrectMuCommaLambdaBreeder
+
+eval		= ec.simple.SimpleEvaluator
+exch		= ec.simple.SimpleExchanger
+#additional Parameters for SimpleEvolutionState:
+generations		        = 20
+#generations             = 1
+quit-on-run-complete	= false
+checkpoint		        = false
+checkpoint-prefix	    = ec
+checkpoint-modulo	    = 1
+
+
+
+#define the Statistice Files                                                                                    #CHANGES: for faster runntime
+#parent.0                    = ../TraceableVectorStatistics/traceableVectorStatistics.params
+parent.0                    = ../TraceableVectorStatistics/justStartingPopulationStatistics.params
+
+
+
+#define some population parameters
+pop.subpops		                = 1
+pop.subpop.0		            = ec.Subpopulation
+pop.subpop.0.size 		        = 20
+pop.subpop.0.duplicate-retries 	= 5
+pop.subpop.0.species 		    = ec.vector.IntegerVectorSpecies
+pop.subpop.0.species.ind	    = ec.vector.TraceableIntegerVectorIndividual
+
+
+#define the representation parameters                                                                           #CHANGES: mutation-type/prob
+pop.subpop.0.species.genome-size	= 5
+pop.subpop.0.species.crossover-type	= line
+pop.subpop.0.species.line-extension = 0.25
+pop.subpop.0.species.mutation-type  = reset
+pop.subpop.0.species.mutation-prob	= 0.05
+
+
+
+#define the fitness:
+pop.subpop.0.species.fitness = ec.simple.SimpleFitness
+
+
+
+#define the breeding procedure for the SimpleBreeder                                                            #CHANGES
+pop.subpop.0.species.pipe			                     = ec.vector.breed.VectorMutationPipeline
+pop.subpop.0.species.pipe.source.0	                 = ec.vector.breed.VectorCrossoverPipeline
+pop.subpop.0.species.pipe.source.0.source.0	             = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.0.source.1         	 = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.0.source.0.size	     = 2
+pop.subpop.0.species.pipe.source.0.source.1.size	     = 2
+#breed.elite.0                                            = 2
+
+pop.subpop.0.pipe = ec.vector.VectorMutation
+pop.subpop.0.pipe.source.0 = ec.es.ESSelection
+
+# gp.koza.reproduce.source.0 = ec.es.ESSelection
+# gp.koza.xover.source.0 = ec.es.ESSelection
+# gp.koza.xover.source.1 = ec.select.TournamentSelection
+# gp.koza.mutate.source.0 = ec.es.ESSelection
+
+#pop.subpop.0.file= /home/tobias/Develop/Java/traceable-ecj/ecj/src/main/java/ec/app/TracableProblems/TracableStatistics/JustStartingPopulationStatisticsOut/startingPop.stat
+
+
+
+#define the Problem                                                                                             #CHANGES
+eval.problem = ec.app.TracableVectorProblems.IntegerKnapsack
+
+
+
+
+
+#additional Knapsack-Parameters                                                                                 #CHANGES
+eval.problem.instance = ../KnapsackConfigurations/low-dimensional/f9_l-d_kp_5_80
+
+pop.subpop.0.species.min-gene.0 = 0
+pop.subpop.0.species.min-gene.1 = 0
+pop.subpop.0.species.min-gene.2 = 0
+pop.subpop.0.species.min-gene.3 = 0
+pop.subpop.0.species.min-gene.4 = 0
+
+pop.subpop.0.species.max-gene.0 = 5
+pop.subpop.0.species.max-gene.1 = 4
+pop.subpop.0.species.max-gene.2 = 4
+pop.subpop.0.species.max-gene.3 = 10
+pop.subpop.0.species.max-gene.4 = 2
+
+pop.subpop.0.species.min-gene	= 0
+pop.subpop.0.species.max-gene 	= 10
