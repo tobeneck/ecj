@@ -77,7 +77,7 @@ pop.subpop.0.pipe.source.0 = ec.es.ESSelection
 
 
 #define the Problem                                                                                             #CHANGES
-eval.problem = ec.app.TracableVectorProblems.RosenbrockFunction
+eval.problem = ec.app.TracableVectorProblems.RastriginFunction
 
 pop.subpop.0.species.min-gene	= 0
 pop.subpop.0.species.max-gene 	= 10
