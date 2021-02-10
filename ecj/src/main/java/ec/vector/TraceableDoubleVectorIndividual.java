@@ -410,7 +410,7 @@ public class TraceableDoubleVectorIndividual extends VectorIndividual {
         int i = 0; //index for this traceVector
         while(i < a.getTraceVector().size()){ //this iterates over the traceVector of this individual
             int currentAID = a.getTraceVector().get(i).getTraceID();
-            int currentAImpact = a.getTraceVector().get(i).getTraceID();
+            double currentAImpact = a.getTraceVector().get(i).getImpact();
 
             a_traceVector.add(new TraceTuple(currentAID, influence_factor_old * currentAImpact));
             i++;
