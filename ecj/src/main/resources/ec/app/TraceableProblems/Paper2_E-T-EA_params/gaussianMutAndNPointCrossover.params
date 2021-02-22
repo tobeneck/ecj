@@ -1,3 +1,4 @@
+#configuration 3:
 
 #parameters for the Evolve Object:
 verbosity	= 0
@@ -6,7 +7,7 @@ store		= true
 
 breedthreads	= 1
 evalthreads	    = 1
-seed.0		    = 710207731
+#seed.0		    = time
 
 state		    = ec.simple.SimpleEvolutionState
 
@@ -32,8 +33,8 @@ checkpoint-modulo	    = 1
 
 
 #define the Statistice Files                                                                                    #CHANGES: for faster runntime
-#parent.0                    = ../TraceableVectorStatistics/traceableVectorStatistics.params
-parent.0                    = ../TraceableVectorStatistics/justStartingPopulationStatistics.params
+parent.0                    = ../TraceableVectorStatistics/traceableVectorStatistics.params
+#parent.0                    = ../TraceableVectorStatistics/justStartingPopulationStatistics.params
 
 
 
@@ -48,8 +49,8 @@ pop.subpop.0.species.ind	    = ec.vector.TraceableDoubleVectorIndividual
 
 #define the representation parameters                                                                           #CHANGES: mutation-type/prob
 pop.subpop.0.species.genome-size	= 5
-pop.subpop.0.species.crossover-type	= line
-pop.subpop.0.species.line-extension = 0.25
+pop.subpop.0.species.crossover-type	= any
+pop.subpop.0.species.crossover-prob = 0.25
 
 pop.subpop.0.species.mutation-type  = gauss
 pop.subpop.0.species.mutation-prob	= 0.05

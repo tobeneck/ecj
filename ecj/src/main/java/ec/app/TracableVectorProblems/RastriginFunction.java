@@ -41,7 +41,7 @@ public class RastriginFunction extends Problem implements SimpleProblemForm
 
         value = value + sum;
 
-        //global minimum f(x) = 0. Fitness = 0 - 1, higher is better
+
         value = 1.0 / ( 1.0 + value );
         ((SimpleFitness)(ind.fitness)).setFitness( state, value, value==1.0 ); //TODO: is this right?
 

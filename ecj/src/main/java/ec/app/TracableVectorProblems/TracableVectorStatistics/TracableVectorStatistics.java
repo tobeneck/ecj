@@ -415,7 +415,7 @@ public class TracableVectorStatistics extends Statistics
         startingEndingFitness = headder +"\n" + startingEndingFitness;
         state.output.println(startingEndingFitness, statLog);
 
-        //fitness and normalizedFitness headder
+        //fitness headder
         headder = "generation";
         for(int i = 1; i <= inds.size(); i++)
             headder += ", " + i;

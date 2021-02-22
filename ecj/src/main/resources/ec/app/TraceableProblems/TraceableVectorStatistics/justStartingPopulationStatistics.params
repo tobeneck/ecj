@@ -5,3 +5,4 @@ stat		= ec.app.TracableVectorProblems.TracableVectorStatistics.JustStartingPopul
 # Add our statistics files
 stat.stat-file = JustStartingPopulationStatisticsOut/startingEndingFitness.csv
 stat.starting-population-file = JustStartingPopulationStatisticsOut/startingPop.stat
+stat.starting-fitness-file = JustStartingPopulationStatisticsOut/startingFitness.csv
