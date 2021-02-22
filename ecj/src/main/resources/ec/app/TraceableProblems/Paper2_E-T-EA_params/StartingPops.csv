@@ -1,0 +1,2 @@
+paramsFile,outputPath,#runs,additionalParameters,problemName,difficulty,population
+../Paper2_E-T-EA_params/gaussianMutAndRecombCrossover.params,/home/tobias/Documents/Uni/Doktor/Paper1/GeneratedStartingPops/,300,,,,
