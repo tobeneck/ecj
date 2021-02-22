@@ -22,12 +22,3 @@ Having set the correct Paths, the script can be run. Running the Script, you are
  	* seventh column: specifies the name of the population for the visualization
 
 Example.csv shows an example configuration file.
-
-
-## pickStartingPopulation.py
-
-This script is there to pick startingpopulations from a big number of randomly created Populations by reading the outputPath of the "generateFromCSV.ps" script, sorting the populations and then picking specified populations. Pandas needs to be installed for this script to work. Bevore using it, you need to change a few parameters bevore each run:
-
- * inputPath: path to the populations to chose from
- * outputPath: path where the picked populations should be placed
- * picks: a List, specifiyng wich of the (sorted) populations should be picked (values need to be in the range if populations to chose from)
