@@ -279,7 +279,12 @@ public class EvolutionState implements Singleton
     public final static String P_INNOVATIONNUMBER = "innovation-number";
     final static String P_CHECKPOINTPREFIX_OLD = "prefix";
 
-    public static int mutationCounter = 0;
+    public final static String P_ACCUMULATE_MUTATION_IMPACT = "accumulate-mutation-impact";
+    static boolean accumulateMutationImpact = true;
+    static int mutationCounter = -1;
+
+    public boolean getAccumulateMutatioImpact(){ return accumulateMutationImpact; }
+    public int getMutationCounter(){ return mutationCounter; }
 
     
     
@@ -295,128 +300,120 @@ public class EvolutionState implements Singleton
     /** Unlike for other setup() methods, ignore the base; it will always be null. 
         @see Prototype#setup(EvolutionState,Parameter)
     */
-    public void setup(final EvolutionState state, final Parameter base)
-        {
+    public void setup(final EvolutionState state, final Parameter base) {
         Parameter p;
-        
+
         // set up the per-thread data
         data = new HashMap[random.length];
-        for(int i = 0; i < data.length; i++)
+        for (int i = 0; i < data.length; i++)
             data[i] = new HashMap();
 
         // we ignore the base, it's worthless anyway for EvolutionState
 
         p = new Parameter(P_CHECKPOINT);
-        checkpoint = parameters.getBoolean(p,null,false);
+        checkpoint = parameters.getBoolean(p, null, false);
 
         p = new Parameter(P_CHECKPOINTPREFIX);
-        checkpointPrefix = parameters.getString(p,null);
-        if (checkpointPrefix==null)
-            {
+        checkpointPrefix = parameters.getString(p, null);
+        if (checkpointPrefix == null) {
             // check for the old-style checkpoint prefix parameter
             Parameter p2 = new Parameter(P_CHECKPOINTPREFIX_OLD);
-            checkpointPrefix = parameters.getString(p2,null);
-            if (checkpointPrefix==null)
-                {
-                output.fatal("No checkpoint prefix specified.",p);  // indicate the new style, not old parameter
-                }
-            else
-                {
+            checkpointPrefix = parameters.getString(p2, null);
+            if (checkpointPrefix == null) {
+                output.fatal("No checkpoint prefix specified.", p);  // indicate the new style, not old parameter
+            } else {
                 output.warning("The parameter \"prefix\" is deprecated.  Please use \"checkpoint-prefix\".", p2);
-                }
             }
-        else
-            {
+        } else {
             // check for the old-style checkpoint prefix parameter as an acciental duplicate
             Parameter p2 = new Parameter(P_CHECKPOINTPREFIX_OLD);
-            if (parameters.getString(p2,null) != null)
-                {
+            if (parameters.getString(p2, null) != null) {
                 output.warning("You have BOTH the deprecated parameter \"prefix\" and its replacement \"checkpoint-prefix\" defined.  The replacement will be used,  Please remove the \"prefix\" parameter.", p2);
-                }
-            
             }
-            
+
+        }
+
 
         p = new Parameter(P_CHECKPOINTMODULO);
-        checkpointModulo = parameters.getInt(p,null,1);
-        if (checkpointModulo==0)
-            output.fatal("The checkpoint modulo must be an integer >0.",p);
-        
+        checkpointModulo = parameters.getInt(p, null, 1);
+        if (checkpointModulo == 0)
+            output.fatal("The checkpoint modulo must be an integer >0.", p);
+
         p = new Parameter(P_CHECKPOINTDIRECTORY);
-        if (parameters.exists(p, null))
-            {
-            checkpointDirectory = parameters.getFile(p,null);
-            if (checkpointDirectory==null)
+        if (parameters.exists(p, null)) {
+            checkpointDirectory = parameters.getFile(p, null);
+            if (checkpointDirectory == null)
                 output.fatal("The checkpoint directory name is invalid: " + checkpointDirectory, p);
             if (!checkpointDirectory.isDirectory())
                 output.fatal("The checkpoint directory location is not a directory: " + checkpointDirectory, p);
-            }
-        else checkpointDirectory = null;
-            
+        } else checkpointDirectory = null;
+
         p = new Parameter(P_EVALUATIONS);
-        if (parameters.exists(p, null))
-            {
+        if (parameters.exists(p, null)) {
             numEvaluations = parameters.getInt(p, null, 1);  // 0 would be UNDEFINED
             if (numEvaluations <= 0)
                 output.fatal("If defined, the number of evaluations must be an integer >= 1", p, null);
-            }
-                
+        }
+
         p = new Parameter(P_GENERATIONS);
-        if (parameters.exists(p, null))
-            {
+        if (parameters.exists(p, null)) {
             numGenerations = parameters.getInt(p, null, 1);  // 0 would be UDEFINED                 
-                                
+
             if (numGenerations <= 0)
                 output.fatal("If defined, the number of generations must be an integer >= 1.", p, null);
-            }
-                        
-        if (numEvaluations != UNDEFINED && numGenerations != UNDEFINED)
-            {
+        }
+
+        if (numEvaluations != UNDEFINED && numGenerations != UNDEFINED) {
             state.output.warning("Both generations and evaluations defined: whichever happens first is when ECJ will stop.");
-            }
-        else if (numEvaluations == UNDEFINED && numGenerations == UNDEFINED)  // uh oh, something must be defined
+        } else if (numEvaluations == UNDEFINED && numGenerations == UNDEFINED)  // uh oh, something must be defined
             output.fatal("Either evaluations or generations must be defined.", new Parameter(P_GENERATIONS), new Parameter(P_EVALUATIONS));
 
-        p=new Parameter(P_QUITONRUNCOMPLETE);
-        quitOnRunComplete = parameters.getBoolean(p,null,false);
+        p = new Parameter(P_QUITONRUNCOMPLETE);
+        quitOnRunComplete = parameters.getBoolean(p, null, false);
 
 
         /* Set up the singletons */
-        p=new Parameter(P_INITIALIZER);
+        p = new Parameter(P_INITIALIZER);
         initializer = (Initializer)
-            (parameters.getInstanceForParameter(p,null,Initializer.class));
-        initializer.setup(this,p);
+                (parameters.getInstanceForParameter(p, null, Initializer.class));
+        initializer.setup(this, p);
 
-        p=new Parameter(P_FINISHER);
+        p = new Parameter(P_FINISHER);
         finisher = (Finisher)
-            (parameters.getInstanceForParameter(p,null,Finisher.class));
-        finisher.setup(this,p);
+                (parameters.getInstanceForParameter(p, null, Finisher.class));
+        finisher.setup(this, p);
 
-        p=new Parameter(P_BREEDER);
+        p = new Parameter(P_BREEDER);
         breeder = (Breeder)
-            (parameters.getInstanceForParameter(p,null,Breeder.class));
-        breeder.setup(this,p);
+                (parameters.getInstanceForParameter(p, null, Breeder.class));
+        breeder.setup(this, p);
 
-        p=new Parameter(P_EVALUATOR);
+        p = new Parameter(P_EVALUATOR);
         evaluator = (Evaluator)
-            (parameters.getInstanceForParameter(p,null,Evaluator.class));
-        evaluator.setup(this,p);
+                (parameters.getInstanceForParameter(p, null, Evaluator.class));
+        evaluator.setup(this, p);
 
-        p=new Parameter(P_STATISTICS);
+        p = new Parameter(P_STATISTICS);
         statistics = (Statistics)
-            (parameters.getInstanceForParameterEq(p,null,Statistics.class));
-        statistics.setup(this,p);
-        
-        p=new Parameter(P_EXCHANGER);
-        exchanger = (Exchanger)
-            (parameters.getInstanceForParameter(p,null,Exchanger.class));
-        exchanger.setup(this,p);
+                (parameters.getInstanceForParameterEq(p, null, Statistics.class));
+        statistics.setup(this, p);
 
-        p=new Parameter(P_INNOVATIONNUMBER);
+        p = new Parameter(P_EXCHANGER);
+        exchanger = (Exchanger)
+                (parameters.getInstanceForParameter(p, null, Exchanger.class));
+        exchanger.setup(this, p);
+
+        p = new Parameter(P_INNOVATIONNUMBER);
         innovationNumber = parameters.getLong(p, null, Long.MIN_VALUE);
-                
+
         generation = 0;
+
+
+        p = new Parameter(P_ACCUMULATE_MUTATION_IMPACT);
+        if (parameters.exists(p, null)) {
+            accumulateMutationImpact = parameters.getBoolean(p, null, true);
         }
+    }
 
     /** This method is called after a checkpoint
         is restored from but before the run starts up again.  You might use this
@@ -458,6 +455,14 @@ public class EvolutionState implements Singleton
             synchronizedIncrementEvaluations(val);
             }
         }
+
+        /**
+         * increments the mutation counter if the mutation influence is not traced accumulated
+         */
+    public void incrementMutationCount(){
+        if(!accumulateMutationImpact)
+            mutationCounter--;
+    }
 
     /** Starts the run. <i>condition</i> indicates whether or not the
         run was restarted from a checkpoint (C_STARTED_FRESH vs

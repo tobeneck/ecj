@@ -234,12 +234,12 @@ public class TraceableBitVectorIndividual extends VectorIndividual {
                     switch(s.mutationType(x))
                     {
                         case BitVectorSpecies.C_FLIP_MUTATION:
-                            state.mutationCounter--;
-                            mutateGene(genome[x], !genome[x].getValue(), state.mutationCounter);
+                            mutateGene(genome[x], !genome[x].getValue(), state.getMutationCounter());
+                            state.incrementMutationCount();
                             break;
                         case BitVectorSpecies.C_RESET_MUTATION:
-                            state.mutationCounter--;
-                            genome[x] = new TraceableBoolean(state.random[thread].nextBoolean(), state.mutationCounter);
+                            genome[x] = new TraceableBoolean(state.random[thread].nextBoolean(), state.getMutationCounter());
+                            state.incrementMutationCount();
                             break;
                         default:
                             state.output.fatal("In TracableBitVectorIndividual.defaultMutate, default case occurred when it shouldn't have");

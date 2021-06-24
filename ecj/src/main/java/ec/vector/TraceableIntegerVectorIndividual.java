@@ -6,6 +6,7 @@ import ec.Individual;
 import ec.util.Code;
 import ec.util.DecodeReturn;
 import ec.util.Parameter;
+import ec.vector.TracableDataTypes.TraceableDouble;
 import ec.vector.TracableDataTypes.TraceableFloat;
 import ec.vector.TracableDataTypes.TraceableInteger;
 import ec.vector.TracableDataTypes.TraceTuple;
@@ -312,10 +313,10 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
      * handles the mutation of one gene.
      * @param a the gene to be mutated
      * @param new_a_value the new value of gene a
-     * @param mutationCounter the current mutation counter used for the traceID
+     * @param state the current evolutionary state containing the mutationID and the accumulationImpact information
      * @return the new, mutated gene
      */
-    private TraceableInteger mutateGene(TraceableInteger a, int new_a_value, int mutationCounter){
+    private TraceableInteger mutateGene(TraceableInteger a, int new_a_value, EvolutionState state){
 
         if(a.getValue() == new_a_value)//return the original gene if the value was not altered
             return a;
@@ -325,9 +326,17 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
 
         List<TraceTuple> a_traceVector = new ArrayList<TraceTuple>();
 
-        a_traceVector.add(new TraceTuple(mutationCounter, influence_factor_mut));
-
         int i = 0; //index for this traceVector
+
+        //check if we accumulate and the first element is already the mutation
+        if(state.getAccumulateMutatioImpact() && a.getTraceVector().get(0).getTraceID() == state.getMutationCounter()){//if we accumulate mutation and the gene is influenced by mutation, accumulate that
+            double oldScaledMutImpact = a.getTraceVector().get(0).getImpact() * influence_factor_old;
+            a_traceVector.add(new TraceTuple(state.getMutationCounter(), influence_factor_mut + oldScaledMutImpact));
+            i++; //increment i, as the first element of the traceList from a is already added
+        } else { //add the new mutation ID if we don't accumulate or there is no mutation present bevore
+            a_traceVector.add(new TraceTuple(state.getMutationCounter(), influence_factor_mut));
+        }
+
         while(i < a.getTraceVector().size()){ //this iterates over the traceVector of this individual
             int currentAID = a.getTraceVector().get(i).getTraceID();
             double currentAImpact = a.getTraceVector().get(i).getImpact();
@@ -354,10 +363,10 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
                     {
                         case IntegerVectorSpecies.C_RESET_MUTATION:
                         {
-                            state.mutationCounter--;
                             //for random mutation the mutation value is completely random
                             int newValue = randomValueFromClosedInterval((int)s.minGene(x), (int)s.maxGene(x), state.random[thread]);
-                            this.setGene(genome[x], newValue, state.mutationCounter);
+                            this.setGene(genome[x], newValue, state.getMutationCounter());
+                            state.incrementMutationCount();
                         }
                             break;
                         case IntegerVectorSpecies.C_RANDOM_WALK_MUTATION:
@@ -381,8 +390,8 @@ public class TraceableIntegerVectorIndividual extends VectorIndividual {
                                 }
                             }
                             while (state.random[thread].nextBoolean(s.randomWalkProbability(x)));
-                            state.mutationCounter--;
-                            genome[x] = this.mutateGene(genome[x], newValue, state.mutationCounter);
+                            genome[x] = this.mutateGene(genome[x], newValue, state);
+                            state.incrementMutationCount();
                             break;
                         default:
                             state.output.fatal("In IntegerVectorIndividual.defaultMutate, default case occurred when it shouldn't have");

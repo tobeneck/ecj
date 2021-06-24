@@ -392,10 +392,10 @@ public class TraceableDoubleVectorIndividual extends VectorIndividual {
      * handles the mutation of one gene.
      * @param a the gene to be mutated
      * @param new_a_value the new value of gene a
-     * @param mutationCounter the current mutation counter used for the traceID
+     * @param state the current evolutionary state containing the mutationID and the accumulationImpact information
      * @return the new, mutated gene
      */
-    private TraceableDouble mutateGene(TraceableDouble a, double new_a_value, int mutationCounter){
+    private TraceableDouble mutateGene(TraceableDouble a, double new_a_value, EvolutionState state){
 
         if(a.getValue() == new_a_value)//return the original gene if the value was not altered
             return a;
@@ -405,9 +405,17 @@ public class TraceableDoubleVectorIndividual extends VectorIndividual {
 
         List<TraceTuple> a_traceVector = new ArrayList<TraceTuple>();
 
-        a_traceVector.add(new TraceTuple(mutationCounter, influence_factor_mut));
-
         int i = 0; //index for this traceVector
+
+        //check if we accumulate and the first element is already the mutation
+        if(state.getAccumulateMutatioImpact() && a.getTraceVector().get(0).getTraceID() == state.getMutationCounter()){//if we accumulate mutation and the gene is influenced by mutation, accumulate that
+            double oldScaledMutImpact = a.getTraceVector().get(0).getImpact() * influence_factor_old;
+            a_traceVector.add(new TraceTuple(state.getMutationCounter(), influence_factor_mut + oldScaledMutImpact));
+            i++; //increment i, as the first element of the traceList from a is already added
+        } else { //add the new mutation ID if we don't accumulate or there is no mutation present bevore
+            a_traceVector.add(new TraceTuple(state.getMutationCounter(), influence_factor_mut));
+        }
+
         while(i < a.getTraceVector().size()){ //this iterates over the traceVector of this individual
             int currentAID = a.getTraceVector().get(i).getTraceID();
             double currentAImpact = a.getTraceVector().get(i).getImpact();
@@ -491,24 +499,26 @@ public class TraceableDoubleVectorIndividual extends VectorIndividual {
         }
         while (random.nextBoolean(species.randomWalkProbability(index)));
 
-        state.mutationCounter--;
-        genome[index] = this.mutateGene(genome[index], newValue, state.mutationCounter);
+        genome[index] = this.mutateGene(genome[index], newValue, state);
+        state.incrementMutationCount();
     }
 
     void integerResetMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
     {
         int minGene = (int)Math.floor(species.minGene(index));
         int maxGene = (int)Math.floor(species.maxGene(index));
-        state.mutationCounter--;
-        genome[index] = new TraceableDouble(randomValueFromClosedInterval(minGene, maxGene, random), state.mutationCounter);// minGene + random.nextLong(maxGene - minGene + 1);
+
+        genome[index] = new TraceableDouble(randomValueFromClosedInterval(minGene, maxGene, random), state.getMutationCounter());// minGene + random.nextLong(maxGene - minGene + 1);
+        state.incrementMutationCount();
     }
 
     void floatResetMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
     {
         double minGene = species.minGene(index);
         double maxGene = species.maxGene(index);
-        state.mutationCounter--;
-        genome[index] = new TraceableDouble((double)(minGene + random.nextDouble(true, true) * (maxGene - minGene)), state.mutationCounter);
+
+        genome[index] = new TraceableDouble((double)(minGene + random.nextDouble(true, true) * (maxGene - minGene)), state.getMutationCounter());
+        state.incrementMutationCount();
     }
 
     void gaussianMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
@@ -536,8 +546,8 @@ public class TraceableDoubleVectorIndividual extends VectorIndividual {
         }
         while (true);
 
-        state.mutationCounter--;
-        genome[index] = this.mutateGene(genome[index], (double)val, state.mutationCounter);
+        genome[index] = this.mutateGene(genome[index], (double)val, state);
+        state.incrementMutationCount();
     }
 
     void polynomialMutation(EvolutionState state, MersenneTwisterFast random, FloatVectorSpecies species, int index)
@@ -586,8 +596,8 @@ public class TraceableDoubleVectorIndividual extends VectorIndividual {
             species.outOfRangeRetryLimitReached(state);// it better get inlined
         }
 
-        state.mutationCounter--;
-        genome[index] = this.mutateGene(genome[index], (double)y1, state.mutationCounter); // ind[index] = y1;
+        genome[index] = this.mutateGene(genome[index], (double)y1, state); // ind[index] = y1;
+        state.incrementMutationCount();
     }
 
     /** This function is broken out to keep it identical to NSGA-II's mutation.c code. eta_m is the distribution
@@ -643,8 +653,8 @@ public class TraceableDoubleVectorIndividual extends VectorIndividual {
                     s.outOfRangeRetryLimitReached(state);// it better get inlined
                 }
 
-                state.mutationCounter--;
-                ind[j] = this.mutateGene(ind[j], (double)y1, state.mutationCounter);
+                ind[j] = this.mutateGene(ind[j], (double)y1, state);
+                state.incrementMutationCount();
             }
         }
     }
