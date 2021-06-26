@@ -1,6 +1,7 @@
 package ec.app.TracableVectorProblems.TracableVectorStatistics.ListOperations;
 
 import ec.Individual;
+import ec.multiobjective.MultiObjectiveFitness;
 import ec.vector.TracableDataTypes.TraceTuple;
 import ec.vector.TracableDataTypes.TraceableString;
 
@@ -11,21 +12,38 @@ import java.util.List;
 
 public class IndividualAndGenomeListOperations {
 
-    public static double getBest(ArrayList<Individual> inds){
+
+
+    /**
+     * return the fitness of the best individual of a population
+     * @param inds the individuals of a population
+     * @return fitness of the best individual
+     */
+    public static double getBest(ArrayList<Individual> inds){//TODO: works only for single objective!
         double highestFitness = -Double.MAX_VALUE;
         for(Individual i : inds)
             if (i.fitness.fitness() > highestFitness)
                 highestFitness = i.fitness.fitness();
         return highestFitness;
     }
-    public static double getMean(ArrayList<Individual> inds){
+    /**
+     * return the mean fitness of a population
+     * @param inds the individuals of a population
+     * @return the mean fitness of the population
+     */
+    public static double getMean(ArrayList<Individual> inds){//TODO: works only for single objective!
         double meanFitness = 0;
         for(Individual i : inds)
             meanFitness += i.fitness.fitness();
         meanFitness = meanFitness / inds.size();
         return meanFitness;
     }
-    public static double getMedian(ArrayList<Individual> inds){
+    /**
+     * return the median fitness of a population
+     * @param inds the individuals of a population
+     * @return the median fitness of the population
+     */
+    public static double getMedian(ArrayList<Individual> inds){//TODO: works only for single objective
         ArrayList<Double> fitness = new ArrayList<Double>();
         for(Individual i : inds)
             fitness.add(i.fitness.fitness());
@@ -33,6 +51,19 @@ public class IndividualAndGenomeListOperations {
         return fitness.get((int)(fitness.size() / 2));
     }
 
+    /**
+     * returns the fitness of an individual, always as a list, to easyer support single and multi objective fitness
+     * @param i the individual
+     * @return list of the fitness or the objectives of an individual
+     */
+    public static double[] getFitness(Individual i){
+        if(i.fitness instanceof MultiObjectiveFitness){
+            return ((MultiObjectiveFitness) i.fitness).getObjectives();
+        }
+        else{ //it is single objective!
+            return new double[] {i.fitness.fitness()};
+        }
+    }
 
     /**
      * returns the genomes as a String array
@@ -160,8 +191,11 @@ public class IndividualAndGenomeListOperations {
                         ArrayList<Integer> genomesToCheck = new ArrayList<>();
                         genomesToCheck.add(j);
                         double entropyFactor = calculateEntropyOnGenomes(genomesToCheck, genomes);
+
+                        //how to combine the fitness values?
                         double diffToWorst = inds.get(i).fitness.fitness() - worstFitness;
 
+                        //TODO: the fitness needs to be separately summed up/the fitness factor needs to be separately calculated
                         countingImpact += influence/(popSize * genomeLength);
                         fitnessImpact += (influence/(popSize * genomeLength)) * (1 + diffToWorst);
                         entropyImpact += (influence/(popSize * genomeLength)) * (1 + entropyFactor);

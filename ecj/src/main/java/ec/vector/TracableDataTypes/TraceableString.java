@@ -34,6 +34,8 @@ public class TraceableString {
 
     public void setValue(String value, ArrayList<TraceTuple> traceVector){ this._value = value; this._traceVector = traceVector; }
 
+
+
     public String toString(){
         String outString = "";
         outString += "["+_value+",";

@@ -1,5 +1,5 @@
 
-stat		= ec.app.TracableVectorProblems.TracableVectorStatistics.TraceableVectorStatistics
+stat		= ec.app.TracableVectorProblems.TracableVectorStatistics.TraceableNSGA2VectorStatistics
 
 
 # Add our statistics files
