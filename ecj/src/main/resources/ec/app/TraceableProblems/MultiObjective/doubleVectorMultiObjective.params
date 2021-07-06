@@ -16,14 +16,9 @@ verbosity	= 1
 flush		= true
 store		= true
 
-breedthreads	= 6
-evalthreads	    = 6
+breedthreads	= 1
+evalthreads	    = 1
 seed.0		    = time
-seed.1		    = 123423456
-seed.2		    = 25486
-seed.3		    = 35482
-seed.4		    = 1256644
-seed.5		    = 12342345
 
 
 state		    = ec.simple.SimpleEvolutionState
@@ -80,6 +75,8 @@ pop.subpop.0.species.mutation-prob	= 0.5
 #define the fitness:
 pop.subpop.0.species.fitness =				ec.multiobjective.nsga2.NSGA2MultiObjectiveFitness
 pop.subpop.0.species.fitness.maximize = false
+multi.fitness.min = 0
+multi.fitness.max = 179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.000000
 
 
 

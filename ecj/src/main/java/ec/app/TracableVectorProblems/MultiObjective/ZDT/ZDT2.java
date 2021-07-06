@@ -1,18 +1,16 @@
 package ec.app.TracableVectorProblems.MultiObjective.ZDT;
 
 import ec.EvolutionState;
-import ec.Individual;
-import ec.Problem;
-import ec.multiobjective.nsga2.NSGA2MultiObjectiveFitness;
-import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
-import ec.vector.TracableDataTypes.TraceableDouble;
-import ec.vector.TraceableDoubleVectorIndividual;
 
 public class ZDT2 extends ZDT1
 {
-    public void setup(final EvolutionState state, final Parameter base) { }
-
+    public void initialSetup(final EvolutionState state, final Parameter base) {
+        super.initialSetup(state, base);
+        this.minNumberObjectives = 2; //the number of objectives for this problem
+        this.maxNumberObjectives = 2; //the number of objectives for this problem
+        this.problemName = "ZDT2"; //the name of the problem
+    }
 
     /**
      * Returns the value of the ZDT2 function H.

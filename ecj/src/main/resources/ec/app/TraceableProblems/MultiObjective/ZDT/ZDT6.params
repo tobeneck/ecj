@@ -9,9 +9,8 @@ eval.problem = ec.app.TracableVectorProblems.MultiObjective.ZDT.ZDT6
 
 #the number of objectives and number of genes:
 multi.fitness.num-objectives 	= 2
-multi.fitness.min = 0
-multi.fitness.max = 1000
-pop.subpop.0.species.genome-size	= 2
+
+pop.subpop.0.species.genome-size	= 10
 
 
 
@@ -26,3 +25,5 @@ pop.subpop.0.species.max-gene.0 = 1
 
 pop.subpop.0.species.min-gene.1 = 0
 pop.subpop.0.species.max-gene.1 = 1
+
+

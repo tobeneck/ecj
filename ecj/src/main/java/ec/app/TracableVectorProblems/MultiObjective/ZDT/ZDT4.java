@@ -1,14 +1,17 @@
 package ec.app.TracableVectorProblems.MultiObjective.ZDT;
 
 import ec.EvolutionState;
-import ec.app.TracableVectorProblems.MultiObjective.ZDT.ZDT1;
 import ec.util.Parameter;
 import ec.vector.TracableDataTypes.TraceableDouble;
 
 public class ZDT4 extends ZDT1
 {
-    public void setup(final EvolutionState state, final Parameter base) { }
-
+    public void initialSetup(final EvolutionState state, final Parameter base) {
+        super.initialSetup(state, base);
+        this.minNumberObjectives = 2; //the number of objectives for this problem
+        this.maxNumberObjectives = 2; //the number of objectives for this problem
+        this.problemName = "ZDT4"; //the name of the problem
+    }
 
     /**
      * Returns the value of the ZDT4 function G.

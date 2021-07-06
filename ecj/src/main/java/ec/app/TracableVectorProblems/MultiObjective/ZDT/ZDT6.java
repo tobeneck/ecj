@@ -1,17 +1,17 @@
 package ec.app.TracableVectorProblems.MultiObjective.ZDT;
 
 import ec.EvolutionState;
-import ec.Individual;
-import ec.Problem;
-import ec.multiobjective.nsga2.NSGA2MultiObjectiveFitness;
-import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import ec.vector.TracableDataTypes.TraceableDouble;
-import ec.vector.TraceableDoubleVectorIndividual;
 
-public class ZDT6 extends Problem implements SimpleProblemForm
+public class ZDT6 extends ZDT1
 {
-    public void setup(final EvolutionState state, final Parameter base) { }
+    public void initialSetup(final EvolutionState state, final Parameter base) {
+        super.initialSetup(state, base);
+        this.minNumberObjectives = 2; //the number of objectives for this problem
+        this.maxNumberObjectives = 2; //the number of objectives for this problem
+        this.problemName = "ZDT6"; //the name of the problem
+    }
 
     /**
      * Returns the value of the ZDT6 function G.
@@ -41,36 +41,24 @@ public class ZDT6 extends Problem implements SimpleProblemForm
         return 1.0 - Math.pow((f1 / g), 2.0);
     }
 
-    public void evaluate(final EvolutionState state,
-                         final Individual ind,
-                         final int subpopulation,
-                         final int threadnum)
-    {
-        if( !( ind instanceof TraceableDoubleVectorIndividual ) )
-            state.output.fatal( "The individuals for this problem should be TraceableDoubleVectorIndividuals." );
+    /**
+     * returns the fitness of the current problem. Mainly combines the output of evalF and evalH
+     * @param genome the genome to be evaluated
+     * @param numberObjectives the number of Objectives in the problem
+     * @param state the evolutionary state for error output
+     * @return the fitness (double array of size 2) of the genome
+     */
+    @Override
+    protected double[] getFitness(TraceableDouble[] genome, int numberObjectives, EvolutionState state){
 
-
-        TraceableDouble[] genome = ((TraceableDoubleVectorIndividual)ind).genome;
-        int len = genome.length;
-
-        if( len != 2 )
-            state.output.fatal( "The ZDT6 problem only works with a genome length of 2, not of: "+ len );
-
-
-
-        double[] f = new double[len];
+        double[] f = new double[numberObjectives]; //the multi objective fitness
 
         f[0] = 1 - Math.exp(-4 * genome[0].getValue()) * Math.pow(Math.sin(6 * Math.PI * genome[0].getValue()), 6);
         double g = this.evalG(genome);
         double h = this.evalH(f[0], g);
         f[1] = h * g;
 
-        double obj1 = f[0];
-        double obj2 = f[1];
+        return f;
 
-        double[] newObjective = {obj1, obj2};
-        ((NSGA2MultiObjectiveFitness) (ind.fitness)).setObjectives(state, newObjective);
-
-        ind.evaluated = true;
     }
 }
