@@ -1,0 +1,27 @@
+#import the partent multi-objective file
+parent.0 = ../../doubleVectorMultiObjective.params
+
+#define the Statistice Files                                                                                    #CHANGES: for faster runntime
+parent.1                    = ../../../TraceableVectorStatistics/traceableNSGA2VectorStatistics.params
+
+#define the Problem                                                                                             #CHANGES
+eval.problem = ec.app.TracableVectorProblems.MultiObjective.DTLZ.DTLZ7
+
+#the number of objectives and number of genes:
+multi.fitness.num-objectives 	= 2
+
+pop.subpop.0.species.genome-size	= 22
+
+
+
+
+#bound the genome values                                                                                 #CHANGES
+
+pop.subpop.0.species.min-gene	= 0
+pop.subpop.0.species.max-gene 	= 1
+
+
+
+#for testing:
+#generations		        = 20
+#pop.subpop.0.size 		= 10

@@ -1,0 +1,5 @@
+#import the partent multi-objective file
+parent.0 = WFG_2D.params
+
+#define the Problem                                                                                             #CHANGES
+eval.problem = ec.app.TracableVectorProblems.MultiObjective.WFG.WFG4

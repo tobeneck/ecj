@@ -1,0 +1,35 @@
+#import the partent multi-objective file
+parent.0 = ../doubleVectorMultiObjective.params
+
+#define the Statistice Files                                                                                    #CHANGES: for faster runntime
+parent.1                    = ../../TraceableVectorStatistics/traceableNSGA2VectorStatistics.params
+
+#define the Problem                                                                                             #CHANGES
+eval.problem = ec.app.TracableVectorProblems.MultiObjective.UF.UF9
+
+#define the additional parameters for this problem
+epsilon = 0.1
+
+#the number of objectives and number of genes:
+multi.fitness.num-objectives 	= 3
+
+pop.subpop.0.species.genome-size	= 30
+
+
+
+
+#bound the genome values                                                                                 #CHANGES
+
+pop.subpop.0.species.min-gene	= -2
+pop.subpop.0.species.max-gene 	= 2
+
+pop.subpop.0.species.min-gene.0	= 0
+pop.subpop.0.species.max-gene.0 = 1
+pop.subpop.0.species.min-gene.1	= 0
+pop.subpop.0.species.max-gene.1 = 1
+
+
+
+#for testing:
+#generations		        = 20
+#pop.subpop.0.size 		= 10

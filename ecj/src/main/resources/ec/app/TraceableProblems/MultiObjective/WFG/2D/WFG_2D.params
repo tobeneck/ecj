@@ -1,0 +1,26 @@
+#import the partent multi-objective file
+parent.0 = ../../doubleVectorMultiObjective.params
+
+#define the Statistice Files                                                                                    #CHANGES: for faster runntime
+parent.1                    = ../../../TraceableVectorStatistics/traceableNSGA2VectorStatistics.params
+
+#the number of objectives and number of genes:
+multi.fitness.num-objectives 	= 2
+
+pop.subpop.0.species.genome-size	= 6
+
+#additional parameters (K + L = genome-size):
+K = 2
+L = 4
+
+
+
+
+#bound the genome values                                                                                 #CHANGES
+#bounds are defined in the setup of the evaluation!
+
+
+
+#for testing:
+#generations		        = 20
+#pop.subpop.0.size 		= 10

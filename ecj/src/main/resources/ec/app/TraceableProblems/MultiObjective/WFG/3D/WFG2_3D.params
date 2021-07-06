@@ -1,0 +1,5 @@
+#import the partent multi-objective file
+parent.0 = ../2D/WFG2_2D.params
+
+#re-define the number of objectives
+multi.fitness.num-objectives 	= 3
