@@ -1,0 +1,6 @@
+"paramsFile","outputPath","#runs","additionalParameters","problemName","difficulty","population"
+"../MultiObjective/ZDT/ZDT1.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/ZDT/ZDT1/",1,"-p pop.subpop.0.size=50 -p generations=20","ZDT1",10,
+"../MultiObjective/ZDT/ZDT2.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/ZDT/ZDT2/",1,"-p pop.subpop.0.size=50 -p generations=20","ZDT2",10,
+"../MultiObjective/ZDT/ZDT3.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/ZDT/ZDT3/",1,"-p pop.subpop.0.size=50 -p generations=20","ZDT3",10,
+"../MultiObjective/ZDT/ZDT4.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/ZDT/ZDT4/",1,"-p pop.subpop.0.size=50 -p generations=20","ZDT4",10,
+"../MultiObjective/ZDT/ZDT6.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/ZDT/ZDT6/",1,"-p pop.subpop.0.size=50 -p generations=20","ZDT6",10,

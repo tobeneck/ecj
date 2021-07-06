@@ -1,0 +1,11 @@
+"paramsFile","outputPath","#runs","additionalParameters","problemName","difficulty","population"
+"../MultiObjective/UF/UF1.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF1/",1,"-p pop.subpop.0.size=50 -p generations=20","UF1",,
+"../MultiObjective/UF/UF2.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF2/",1,"-p pop.subpop.0.size=50 -p generations=20","UF2",,
+"../MultiObjective/UF/UF3.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF3/",1,"-p pop.subpop.0.size=50 -p generations=20","UF3",,
+"../MultiObjective/UF/UF4.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF4/",1,"-p pop.subpop.0.size=50 -p generations=20","UF4",,
+"../MultiObjective/UF/UF5.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF5/",1,"-p pop.subpop.0.size=50 -p generations=20","UF5",,
+"../MultiObjective/UF/UF6.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF6/",1,"-p pop.subpop.0.size=50 -p generations=20","UF6",,
+"../MultiObjective/UF/UF7.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF7/",1,"-p pop.subpop.0.size=50 -p generations=20","UF7",,
+"../MultiObjective/UF/UF8.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF8/",1,"-p pop.subpop.0.size=50 -p generations=20","UF8",,
+"../MultiObjective/UF/UF9.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF9/",1,"-p pop.subpop.0.size=50 -p generations=20","UF9",,
+"../MultiObjective/UF/UF10.params","/home/tobias/Develop/Java/traceable-ecj/ecj/src/main/resources/ec/app/TraceableProblems/GenerateTests/Test/UF/UF10/",1,"-p pop.subpop.0.size=50 -p generations=20","UF10",,
