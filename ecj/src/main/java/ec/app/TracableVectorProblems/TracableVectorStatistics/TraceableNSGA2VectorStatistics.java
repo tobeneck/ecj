@@ -56,13 +56,6 @@ public class TraceableNSGA2VectorStatistics extends TraceableVectorStatistics
         }
 
 
-        //print the pop.stat
-        // write out a warning that the next generation is coming
-        state.output.println("-----------------------\nGENERATION " +
-                state.generation + "\n-----------------------", popLog);
-        // print out the population
-        state.population.printPopulation(state,popLog);
-
 
         //print the eval string
         String generationString = state.generation + "";

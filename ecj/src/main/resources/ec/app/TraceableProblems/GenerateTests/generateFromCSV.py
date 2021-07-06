@@ -6,14 +6,7 @@ import random
 classpath = "../../../../../../../target/classes" #NOTE: change
 executable = "ec.Evolve"
 
-#TODO: select with a if 
-print('Input "1" if you just wand to use the starting pop statistics. The full statistics path is used otherwise.')
-justStarting=input()
-statisticsFolder = "../TraceableVectorStatistics/TracableVectorStatisticsOut/"
-
-if justStarting == "1" :
-	statisticsFolder="../TraceableVectorStatistics/JustStartingPopulationStatisticsOut/"
-print(statisticsFolder)
+#statisticsFolder = "../TraceableVectorStatistics/TracableVectorStatisticsOut/"
 
 #readCSVFile="generateEasyTests.csv"
 print('path to the input file:')
@@ -40,26 +33,26 @@ def appendCSVRow (fileName, csvRow):
 #define a method for running one test
 def runOneTest(paramsFile, outputPath, numberRuns, additionalArguments, lineCount):
 	os.makedirs(outputPath)
-	appendCSVRow(outputPath+"statisticOfGeneration.csv", ["problem", "folderName", "seed", "bestFitness", "meanFitness", "medianFitness"])
+	appendCSVRow(outputPath+"statisticOfGeneration.csv", ["problem", "folderName", "seed"])
 	for i in range(0, numberRuns):
 		print("starting Run "+ str(i) +" of "+ str(numberRuns)+ " of problem " + str(lineCount))
-		seed=random.randint(-999999,999999)
+		currentSeed=random.randint(-999999,999999)
 		currentFolderName="Run"+str(i)
-		os.system("java -cp "+classpath+" "+executable+" -file "+paramsFile+" -p seed.0="+str(seed) + " " + additionalArguments)
-		startingEndingFitness=readCSVRow(statisticsFolder+"startingEndingFitness.csv", 1)
-		appendCSVRow(outputPath+"statisticOfGeneration.csv", [paramsFile, currentFolderName, str(seed), startingEndingFitness[0], startingEndingFitness[1], startingEndingFitness[2]])		
-		os.system("cp -r "+statisticsFolder+" "+outputPath+currentFolderName )
-
-
-
-
+		currentRunPath=outputPath+currentFolderName+"/"
+		os.makedirs(currentRunPath)
+		evalFileParameter = " -p stat.eval-file="+ currentRunPath +"/eval.csv"
+		startingPopFileParameter = " -p stat.starting-population-file="+ currentRunPath +"/startingPop.stat"
+		seedParameter = " -p seed.0="+str(currentSeed)
+		os.system("java -Xms1G -Xmx4G -cp "+classpath+" "+executable+" -file "+paramsFile + " "+ seedParameter + " " + evalFileParameter + " " + startingPopFileParameter + " " + additionalArguments)
+		appendCSVRow(outputPath+"statisticOfGeneration.csv", [paramsFile, currentFolderName, str(currentSeed)])
+		#os.system("cp -r "+statisticsFolder+" "+outputPath+currentFolderName )
 
 
 #generate all the test in the csv file
 csv_reader = csv.reader(open(readCSVFile,"r"),delimiter=',')
 line_count = 0
 for row in csv_reader:
-	print("processing Problem "+str(line_count))
+	print("processing Problem ",line_count,"witn name", row[5])
 	if line_count == 0:
 		#headline of csv file
 		print("Starting the Testruns!")

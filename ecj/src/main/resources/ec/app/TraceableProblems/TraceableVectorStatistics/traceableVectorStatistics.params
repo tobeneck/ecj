@@ -3,6 +3,5 @@ stat		= ec.app.TracableVectorProblems.TracableVectorStatistics.TraceableVectorSt
 
 
 # Add our statistics files
-stat.pop-file  = TracableVectorStatisticsOut/pop.stat
 stat.eval-file = TracableVectorStatisticsOut/eval.csv
 stat.starting-population-file = TracableVectorStatisticsOut/startingPop.stat

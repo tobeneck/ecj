@@ -17,18 +17,14 @@ import static ec.app.TracableVectorProblems.TracableVectorStatistics.ListOperati
 
 public class TraceableVectorStatistics extends Statistics
 {
-    // The parameter string and log number of the file for our readable population
-    public static final String P_POPFILE = "pop-file";
-    public int popLog;
-
     public static final String P_STARTINGPOP = "starting-population-file";
     public int startingPopulationLog;
 
     public static final String P_EVALFILE = "eval-file"; //eval file wich contains the information for the python evaluation
     public int evalLog;
-
     protected String evalString = "generation;individual;fitness;genome\n";
-    //protected String startingEndingFitness = "";
+
+
 
     /**
      * returns the eval string for a given list of genomes
@@ -67,29 +63,15 @@ public class TraceableVectorStatistics extends Statistics
         for(int j = 0; j < fitness.length; j++){
             outString += fitness[j];
             if(j + 1< fitness.length)
-                outString += "|";//TODO: other delimiter symbol
+                outString += "|";
         }
 
         return outString;
     }
 
-    public void setup(final EvolutionState state, final Parameter base)
-    {
+    public void setup(final EvolutionState state, final Parameter base) {
         // DO NOT FORGET to call super.setup(...) !!
         super.setup(state,base);
-
-        // set up popFile
-        File popFile = state.parameters.getFile(
-                base.push(P_POPFILE),null);
-        if (popFile!=null) try
-        {
-            popLog = state.output.addLog(popFile,true);
-        }
-        catch (IOException i)
-        {
-            state.output.fatal("An IOException occurred while trying to create the log " +
-                    popFile + ":\n" + i);
-        }
 
         // set up startingPopulationFile
         File startingPopulationFile = state.parameters.getFile(
@@ -121,8 +103,6 @@ public class TraceableVectorStatistics extends Statistics
 
     public void postEvaluationStatistics(final EvolutionState state)
     {
-        // be certain to call the hook on super!
-        super.postEvaluationStatistics(state);
 
         ArrayList<Individual> inds = state.population.subpops.get(0).individuals; //provides fitness and strings to deconstruct
         ArrayList<ArrayList<TraceableString>> genomes = new ArrayList<ArrayList<TraceableString>>(); //provides the genomes (values and traceVectors) of the inds. As the inds have a generic datatype, this is the only way to keep it interchangeable with other traceableDatatypes.
@@ -139,18 +119,8 @@ public class TraceableVectorStatistics extends Statistics
         //print the startingPopulationFile and the startingFitness
         if(state.generation == 0){
             // print out the population
-            //state.population.subpops.get(0).printSubpopulation(state,startingPopulationLog);
             state.population.printPopulation(state,startingPopulationLog);
-            //startingEndingFitness = "" + IndividualAndGenomeListOperations.getBest(inds) + "," + IndividualAndGenomeListOperations.getMean(inds) +","+ IndividualAndGenomeListOperations.getMedian(inds);
         }
-
-
-//        //print the pop.stat
-//        // write out a warning that the next generation is coming
-//        state.output.println("-----------------------\nGENERATION " +
-//                state.generation + "\n-----------------------", popLog);
-//        // print out the population
-//        state.population.printPopulation(state,popLog);
 
 
         //print the eval string
